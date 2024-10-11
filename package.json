@@ -1,0 +1,57 @@
+{
+  "name": "protoobject",
+  "version": "0.0.1",
+  "description": "TBD",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "test": "node --test test/**/*.test.js",
+    "cov": "node_modules/.bin/nyc npm run test",
+    "lint": "node_modules/.bin/eslint src/**/*.ts",
+    "prebuild": "npm run lint",
+    "build": "rm -rf lib && node_modules/.bin/tsc --declaration",
+    "update": "eval \"$(node -e 'const t = require(`./package.json`);const ignore = require(`./ignoreUpdatesModules.json`);console.log(`npm i ${(Object.keys(t.dependencies || {}).filter((e)=>ignore.base.indexOf(e) === -1).map((e)=>(`${e}@latest`)).join(` `))} --save&&npm i ${(Object.keys(t.devDependencies || {}).filter((e)=>ignore.dev.indexOf(e) === -1).map((e)=>(`${e}@latest`)).join(` `))} --save-dev`);')\""
+  },
+  "author": {
+    "name": "Siarhei Dudko",
+    "email": "siarhei@dudko.dev",
+    "url": "https://dudko.dev/"
+  },
+  "funding": [
+    {
+      "type": "buymeacoffee",
+      "url": "https://www.buymeacoffee.com/dudko.dev"
+    },
+    {
+      "type": "paypal",
+      "url": "https://paypal.me/dudkodev"
+    },
+    {
+      "type": "patreon",
+      "url": "https://patreon.com/dudko_dev"
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "github:dudko-dev/protoobject"
+  },
+  "keywords": [
+    "protoobject"
+  ],
+  "homepage": "https://github.com/dudko-dev/protoobject",
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "@types/node": "^22.4.1",
+    "eslint": "^9.12.0",
+    "nyc": "^17.1.0",
+    "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.8.1"
+  },
+  "engines": {},
+  "directorie": {
+    "man": "./docs/",
+    "test": "./test/"
+  }
+}
