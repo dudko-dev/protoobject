@@ -112,7 +112,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref }}
-          name: Release ${{ github.ref }}
+          name: v${{ env.RELEASE_VERSION }}
           body_path: ${{ github.workspace }}/README.md
           repository: dudko-dev/protoobject
           token: ${{ secrets.TOKEN_FOR_WORKFLOW }}
