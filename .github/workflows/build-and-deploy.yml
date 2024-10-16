@@ -27,8 +27,6 @@ jobs:
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
             ${{ runner.os }}-
-      - name: Set RELEASE_VERSION env
-        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Install dependencies
         run: npm ci
       - name: Install builder
@@ -77,11 +75,58 @@ jobs:
       - name: Run test
         run: npm run cov
   deploy:
-    if: ${{ !endsWith(env.RELEASE_VERSION, '-beta') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [build, test]
     env:
       NODE_VERSION: 22
     steps:
-      - run: echo $RELEASE_VERSION
+      - name: Сheckout repo
+        uses: actions/checkout@v4
+      - name: Unarchiving lib directory
+        uses: actions/download-artifact@v4
+        with:
+          name: lib
+          path: ${{ github.workspace }}/lib
+      - name: Use Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Cache node modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install modules
+        run: npm ci
+      - name: Set RELEASE_VERSION env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Create Release
+        if: ${{ !endsWith(env.RELEASE_VERSION, '-beta') }}
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            see [CHANGELOG.md](https://github.com/dudko-dev/protoobject/blob/master/CHANGELOG.md)
+          draft: false
+          prerelease: false
+      - name: Set registry npm packages
+        if: ${{ !endsWith(env.RELEASE_VERSION, '-beta') }}
+        uses: actions/setup-node@v4
+        with:
+          registry-url: "https://registry.npmjs.org"
+      - name: Publish package to NPM
+        if: ${{ !endsWith(env.RELEASE_VERSION, '-beta') }}
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
