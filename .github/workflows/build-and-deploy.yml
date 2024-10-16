@@ -40,10 +40,45 @@ jobs:
         with:
           name: lib
           path: ${{ github.workspace }}/lib
-  deploy:
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    needs: [build]
+    needs: build
+    strategy:
+      matrix:
+        node-version: [20.x, 22.x]
+    steps:
+      - name: Сheckout repo
+        uses: actions/checkout@v4
+      - name: Unarchiving lib directory
+        uses: actions/download-artifact@v4
+        with:
+          name: lib
+          path: ${{ github.workspace }}/lib
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache node modules
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      - name: Install dependencies
+        run: npm ci
+      - name: Run test
+        run: npm run cov
+  deploy:
+    if: ${{ !endsWith(env.RELEASE_VERSION, '-beta') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build, test]
     env:
       NODE_VERSION: 22
     steps:
