@@ -117,7 +117,7 @@ jobs:
           repository: dudko-dev/protoobject
           token: ${{ secrets.TOKEN_FOR_WORKFLOW }}
           draft: false
-          prerelease: false
+          prerelease: ${{ !!endsWith(env.RELEASE_VERSION, '-beta') }}
       - name: Set registry npm packages
         if: ${{ !endsWith(env.RELEASE_VERSION, '-beta') }}
         uses: actions/setup-node@v4
