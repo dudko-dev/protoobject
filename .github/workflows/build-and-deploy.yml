@@ -109,14 +109,13 @@ jobs:
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            see [CHANGELOG.md](https://github.com/dudko-dev/protoobject/blob/master/CHANGELOG.md)
+          name: Release ${{ github.ref }}
+          body_path: ${{ github.workspace }}/README.md
+          repository: dudko-dev/protoobject
+          token: ${{ secrets.TOKEN_FOR_WORKFLOW }}
           draft: false
           prerelease: false
       - name: Set registry npm packages

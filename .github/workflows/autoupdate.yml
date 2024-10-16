@@ -2,8 +2,6 @@ name: Autoupdate
 on:
   schedule:
     - cron: "0 1 * * *"
-permissions:
-  contents: write
 concurrency:
   group: "${{ github.workflow }} @ ${{ github.ref }}"
   cancel-in-progress: false
@@ -77,14 +75,13 @@ jobs:
         run: npm run build
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.VERSION }}
-          release_name: Release ${{ env.VERSION }}
-          body: |
-            see [CHANGELOG.md](https://github.com/dudko-dev/protoobject/blob/master/CHANGELOG.md)
+          tag_name: ${{ github.ref }}
+          name: Release ${{ github.ref }}
+          body_path: ${{ github.workspace }}/README.md
+          repository: dudko-dev/protoobject
+          token: ${{ secrets.TOKEN_FOR_WORKFLOW }}
           draft: false
           prerelease: false
       - name: Publish package to NPM
