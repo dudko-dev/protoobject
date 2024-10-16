@@ -26,7 +26,7 @@ Inspired by gRPC and Firebase.
 
 These methods ensure that the class and its heirs interact with the external system and will not contain backward incompatible changes.
 
-| --- type of the property --- | --- name of the property --- | --- description --- |
+| type of the property | name of the property | description |
 | --- | --- | --- |
 | static | `fromJSON` | A method for converting a simple json to ProtoObject class or its heir |
 | dynamic | `toJSON` | A method for converting a ProtoObject class or its heir to simple json |
@@ -40,7 +40,7 @@ These methods ensure that the class and its heirs interact with the external sys
 
 These methods ensure the operation of the class itself and can change significantly over time.
 
-| --- type of the property --- | --- name of the property --- | --- description --- |
+| type of the property | name of the property | description |
 | --- | --- | --- |
 | static | `getProperties` | Get all properties of an object and its prototypes |
 | static | `getEnumerableProperties` | Get all enumerable properties of an object and its prototypes |
