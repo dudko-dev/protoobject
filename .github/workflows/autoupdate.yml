@@ -31,7 +31,7 @@ jobs:
           builds-and-checks: |
             npm run lint
             npm run build
-            npm test
+            npm test:ts
           debug: "true"
           ignore-packages: |
             @types/node
