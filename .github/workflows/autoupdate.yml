@@ -21,7 +21,7 @@ jobs:
           ref: "main"
       - name: Autoupdate
         id: autoupdate
-        uses: siarheidudko/autoupdater@v3
+        uses: siarheidudko/autoupdater@v4
         with:
           author-email: "slavianich@gmail.com"
           author-name: "Siarhei Dudko"
@@ -31,7 +31,7 @@ jobs:
           builds-and-checks: |
             npm run lint
             npm run build
-            npm test:ts
+            npm test:js
           debug: "true"
           ignore-packages: |
             @types/node
