@@ -77,7 +77,7 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: ${{ needs.update.outputs.version }}
           name: v${{ needs.update.outputs.version }}
           body_path: ${{ github.workspace }}/README.md
           repository: dudko-dev/protoobject
