@@ -37,6 +37,8 @@ jobs:
             @types/node
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 15
     env:
       NODE_VERSION: 22
@@ -81,7 +83,7 @@ jobs:
           name: v${{ needs.update.outputs.version }}
           body_path: ${{ github.workspace }}/README.md
           repository: dudko-dev/protoobject
-          token: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           draft: false
           prerelease: false
       - name: Publish package to NPM
