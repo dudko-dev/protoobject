@@ -266,6 +266,8 @@ class User extends ProtoObject<User> {
 
 ### An example of the implementation of the SQL database base class
 
+This is an example of creating a basic (abstract) class for working with an SQLite database. Below is an example of an heir of this class, which is a table entry.
+
 ```typescript
 import { randomUUID } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
@@ -408,6 +410,8 @@ export class BaseRecord<T extends BaseRecord<T>> extends ProtoObject<T> {
 ```
 
 ### An example of the implementation of an heir from the base class of the SQL database
+
+An example of a simple implementation of a data class based on a base class.
 
 ```typescript
 import { randomUUID } from "crypto";
