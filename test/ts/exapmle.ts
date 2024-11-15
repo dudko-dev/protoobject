@@ -101,7 +101,7 @@ export class User extends ProtoObject<User> {
   //! the conversion of the remaining types manually.
   public static fromJSON<User>(data: { [key: string]: unknown }): User {
     return new User({
-      ...(super.fromJSON<any>(data) as User),
+      ...super.fromJSON(data),
       createdAt:
         typeof data.createdAt === "string"
           ? new Date(data.createdAt)

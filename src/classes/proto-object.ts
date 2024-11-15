@@ -48,7 +48,7 @@ export class ProtoObject<T extends ProtoObjectDynamicMethods<T>>
    * @param options.onlyWritable - return only writable properties
    * @returns - an array of the properties information
    */
-  public static getEnumerableProperties<T extends ProtoObjectDynamicMethods<T>>(
+  public static getEnumerableProperties<T extends ProtoObject<T>>(
     data: {
       [key: PropertyKey]: unknown;
     },
@@ -78,7 +78,7 @@ export class ProtoObject<T extends ProtoObjectDynamicMethods<T>>
    * @param data - an object such as a ProtoObject or its heir or an object property
    * @returns - an object such as a ProtoObject or its heir or an object property
    */
-  public static recursiveAssign<T extends ProtoObjectDynamicMethods<T>, K>(
+  public static recursiveAssign<T extends ProtoObject<T>, K>(
     obj: unknown,
     data?: unknown
   ): K {
@@ -150,7 +150,7 @@ export class ProtoObject<T extends ProtoObjectDynamicMethods<T>>
    * @param data - a ProtoObject class or its heir or any other object
    * @returns - a assigned ProtoObject class or its heir
    */
-  public static deepAssign<T extends ProtoObjectDynamicMethods<T>>(
+  public static deepAssign<T extends ProtoObject<T>>(
     obj: T,
     data?: Partial<T>
   ): T {
@@ -198,7 +198,7 @@ export class ProtoObject<T extends ProtoObjectDynamicMethods<T>>
    * @param data - a simple json data
    * @returns - a ProtoObject class or its heir
    */
-  public static fromJSON<T extends ProtoObjectDynamicMethods<T>>(data: {
+  public static fromJSON<T extends ProtoObject<T>>(data: {
     [key: string]: unknown;
   }): T {
     const classNode = this as unknown as ProtoObjectStaticMethods<T>;
@@ -268,7 +268,7 @@ export class ProtoObject<T extends ProtoObjectDynamicMethods<T>>
    * @param param0.validatorFrom - data validator when converting to a class
    * @returns data transformer for the ProtoObject class or its heir
    */
-  public static recordTransformer<T extends ProtoObjectDynamicMethods<T>>({
+  public static recordTransformer<T extends ProtoObject<T>>({
     validatorTo,
     validatorFrom,
   }: {
@@ -301,7 +301,7 @@ export class ProtoObject<T extends ProtoObjectDynamicMethods<T>>
    * @param param0.validatorFrom - data validator when converting to a class
    * @returns data transformer for the array of the ProtoObject classes or its heirs
    */
-  public static collectionTransformer<T extends ProtoObjectDynamicMethods<T>>({
+  public static collectionTransformer<T extends ProtoObject<T>>({
     validatorTo,
     validatorFrom,
   }: {
