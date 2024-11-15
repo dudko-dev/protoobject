@@ -1,12 +1,13 @@
 {
   "name": "protoobject",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "A universal class for creating any JSON objects and simple manipulations with them.",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
     "test:ts": "node --import=tsx --test test/ts/*.test.ts",
     "test:js": "node --test test/js/*.test.js",
+    "test:sql": "node --experimental-sqlite --import=tsx --test test/sql/*.test.ts",
     "cov": "./node_modules/.bin/nyc npm run test:ts",
     "lint": "./node_modules/.bin/eslint src/**/*.ts",
     "prebuild": "npm run lint",

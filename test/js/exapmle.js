@@ -1,5 +1,5 @@
 "use strict";
-const { ProtoObject, protoObjectFactory } = require("../../lib");
+const { ProtoObject, protoObjectFactory } = require("../../");
 
 /**
  * Example of the ProtoObject heir
@@ -75,7 +75,7 @@ class User extends ProtoObject {
   //! the conversion of the remaining types manually.
   toJSON() {
     return {
-      ...super.toJSON(),
+      ...super.toJSON.call(this),
       createdAt: this.createdAt.toJSON(),
       photo:
         this.photo instanceof Buffer ? this.photo.toString("hex") : undefined,

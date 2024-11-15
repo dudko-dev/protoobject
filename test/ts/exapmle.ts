@@ -3,7 +3,7 @@ import {
   StaticImplements,
   ProtoObjectStaticMethods,
   protoObjectFactory,
-} from "../../src";
+} from "../../";
 
 //! An option to create classes based on the interface and factory
 interface IUserRights extends ProtoObject<IUserRights> {
@@ -85,7 +85,7 @@ export class User extends ProtoObject<User> {
   //! the conversion of the remaining types manually.
   public toJSON(): { [key: string]: any } {
     return {
-      ...super.toJSON(),
+      ...super.toJSON.call(this),
       createdAt: this.createdAt.toJSON(),
       photo:
         this.photo instanceof Buffer ? this.photo.toString("hex") : undefined,
