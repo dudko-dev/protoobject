@@ -1,3 +1,8 @@
+# 1.1.26 / 2025-02-18
+
+### :tada: Enhancements
+- Updated dependencies: typescript-eslint
+
 # 1.1.25 / 2025-02-14
 
 ### :tada: Enhancements
