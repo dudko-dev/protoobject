@@ -1,31 +1,22 @@
-import {
-  ProtoObject,
-  StaticImplements,
-  ProtoObjectStaticMethods,
-  protoObjectFactory,
-} from "../../src/index.js";
-
-//! An option to create classes based on the interface and factory
-interface IUserRights extends ProtoObject<IUserRights> {
-  isAdmin: boolean;
-  updatedAt: Date;
-}
+"use strict";
+const { ProtoObject, protoObjectFactory } = require("../../lib/cjs/src/");
 
 /**
  * Example of the ProtoObject heir
  *
  */
-export const UserRights = protoObjectFactory<IUserRights>({
-  fromJSON(data: { [key: string]: unknown }) {
-    return new (this as any)({
+//! An option to create classes based on the factory
+const UserRights = protoObjectFactory({
+  fromJSON(data) {
+    return new this({
       ...ProtoObject.fromJSON(data),
-      updatedAt: new Date(data?.updatedAt as string),
+      updatedAt: new Date(data?.updatedAt),
     });
   },
-  toJSON(): { [key: string]: any } {
+  toJSON() {
     return {
       ...UserRights?.prototype?.toJSON?.call(this),
-      updatedAt: (this as any).updatedAt?.toJSON(),
+      updatedAt: this.updatedAt?.toJSON(),
     };
   },
 });
@@ -34,10 +25,10 @@ export const UserRights = protoObjectFactory<IUserRights>({
  * Example of the ProtoObject heir
  *
  */
-//! Use a decorator to check the static properties of an object.
-@StaticImplements<ProtoObjectStaticMethods<UserAddress>>()
-export class UserAddress extends ProtoObject<UserAddress> {
-  constructor(data?: Partial<UserAddress>) {
+//! Using the decorator for additional verification of static methods is only
+//! available for TypeScript.
+class UserAddress extends ProtoObject {
+  constructor(data) {
     super(data);
     //! Note that if you have described the class fields inside the class,
     //! then you need to assign them inside the class constructor, because
@@ -47,19 +38,19 @@ export class UserAddress extends ProtoObject<UserAddress> {
     return this;
   }
 
-  country!: string;
+  country;
 
-  postCode!: string;
+  postCode;
 }
 
 /**
  * Example of the ProtoObject heir
  *
  */
-//! Use a decorator to check the static properties of an object.
-@StaticImplements<ProtoObjectStaticMethods<User>>()
-export class User extends ProtoObject<User> {
-  constructor(data?: Partial<User>) {
+//! Using the decorator for additional verification of static methods is only
+//! available for TypeScript.
+class User extends ProtoObject {
+  constructor(data) {
     super(data);
     //! Note that if you have described the class fields inside the class,
     //! then you need to assign them inside the class constructor, because
@@ -69,22 +60,20 @@ export class User extends ProtoObject<User> {
     return this;
   }
 
-  id!: string;
+  id;
 
-  email!: string;
+  email;
 
-  createdAt!: Date;
+  createdAt;
 
-  photo?: Buffer;
+  photo;
 
-  address?: UserAddress;
-
-  rights?: IUserRights;
+  address;
 
   //! You can skip fields with standard types `String`, `Number`, `Boolean`
   //! and use a superclass converter for these types, but you must implement
   //! the conversion of the remaining types manually.
-  public toJSON(): { [key: string]: any } {
+  toJSON() {
     return {
       ...super.toJSON.call(this),
       createdAt: this.createdAt.toJSON(),
@@ -100,7 +89,7 @@ export class User extends ProtoObject<User> {
   //! You can skip fields with standard types `String`, `Number`, `Boolean`
   //! and use a superclass converter for these types, but you must implement
   //! the conversion of the remaining types manually.
-  public static fromJSON<User>(data: { [key: string]: unknown }): User {
+  static fromJSON(data) {
     return new User({
       ...super.fromJSON(data),
       createdAt:
@@ -111,12 +100,14 @@ export class User extends ProtoObject<User> {
         typeof data.photo === "string"
           ? Buffer.from(data.photo, "hex")
           : undefined,
-      address: data.address
-        ? UserAddress.fromJSON<UserAddress>(
-            data.address as { [key: string]: unknown }
-          )
-        : undefined,
+      address: data.address ? UserAddress.fromJSON(data.address) : undefined,
       rights: data.rights ? UserRights.fromJSON(data.rights) : undefined,
-    }) as unknown as User;
+    });
   }
 }
+
+module.exports = {
+  User,
+  UserAddress,
+  UserRights,
+};

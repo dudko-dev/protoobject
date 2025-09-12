@@ -1,8 +1,8 @@
 "use strict";
 const { describe, it } = require("node:test");
 const { deepEqual, notEqual, equal } = require("node:assert");
-const { ProtoObject } = require("../../lib/cjs/");
-const { UserAddress, User, UserRights } = require("./example");
+const { ProtoObject } = require("../../lib/cjs/src/");
+const { UserAddress, User, UserRights } = require("./exapmle");
 const { randomUUID } = require("node:crypto");
 
 describe("Equivalence check", function () {

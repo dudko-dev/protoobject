@@ -13,7 +13,7 @@ jobs:
       updated: ${{ steps.autoupdate.outputs.updated }}
       version: ${{ steps.autoupdate.outputs.version }}
     steps:
-      - name: Сheckout repo
+      - name: Checkout repo
         id: checkout_repo
         uses: actions/checkout@v4
         with:
@@ -46,7 +46,7 @@ jobs:
     needs: [update]
     if: ${{ needs.update.outputs.updated == 'true' }}
     steps:
-      - name: Сheckout repo
+      - name: Checkout repo
         id: checkout_repo
         uses: actions/checkout@v4
         with:

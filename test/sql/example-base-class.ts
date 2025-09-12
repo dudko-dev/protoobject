@@ -4,7 +4,7 @@ import {
   ProtoObject,
   ProtoObjectStaticMethods,
   StaticImplements,
-} from "../../";
+} from "../../src/index.js";
 
 export enum RecordState {
   ACTIVE,

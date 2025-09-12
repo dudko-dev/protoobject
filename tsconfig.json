@@ -22,7 +22,7 @@
     "declarationMap": false
   },
   "compileOnSave": true,
-  "include": ["src"],
+  "include": ["src", "test"],
   "typedocOptions": {
     "out": "./docs/",
     "theme": "default",

@@ -10,7 +10,6 @@ interface IUserRights extends ProtoObject<IUserRights> {
   isAdmin: boolean;
   updatedAt: Date;
 }
-
 /**
  * Example of the ProtoObject heir
  *

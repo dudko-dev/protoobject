@@ -1,5 +1,5 @@
-import { randomUUID } from "crypto";
-import { StaticImplements } from "../../";
+import { randomUUID } from "node:crypto";
+import { StaticImplements } from "../../src/index.js";
 import { BaseRecord, BaseRecordStaticMethods } from "./example-base-class";
 
 @StaticImplements<BaseRecordStaticMethods<ApplicationRecord>>()

@@ -21,10 +21,14 @@
     "lib/**/*"
   ],
   "scripts": {
-    "test": "npm run test:ts && npm run test:js && npm run test:sql",
+    "test": "npm run test:ts && npm run test:js && npm run test:sql && npm run test:sqlite && npm run test:stream && npm run test:crypto && npm run test:fs",
     "test:ts": "node --import=tsx --test test/ts/*.test.ts",
     "test:js": "node --test test/js/*.test.js",
     "test:sql": "node --experimental-sqlite --import=tsx --test test/sql/*.test.ts",
+    "test:sqlite": "node --experimental-sqlite --import=tsx --test test/sqlite/*.test.ts",
+    "test:stream": "node --import=tsx --test test/stream/*.test.ts",
+    "test:crypto": "node --import=tsx --test test/crypto/*.test.ts",
+    "test:fs": "node --import=tsx --test test/fs/*.test.ts",
     "cov": "./node_modules/.bin/nyc npm run test:ts",
     "lint": "./node_modules/.bin/eslint src/**/*.ts",
     "prebuild": "npm run lint",
@@ -35,6 +39,8 @@
     "build:types": "./node_modules/.bin/tsc -p tsconfig.types.json",
     "build:package-json": "echo '{\"type\":\"commonjs\"}' > lib/cjs/package.json && echo '{\"type\":\"module\"}' > lib/esm/package.json",
     "build:fix-esm": "node fix-esm-imports.js",
+    "example:stream-chat:server": "node --import=tsx examples/stream-chat/server.ts",
+    "example:stream-chat:client": "node --import=tsx examples/stream-chat/client.ts",
     "update": "eval \"$(node -e 'const t = require(`./package.json`);const ignore = require(`./ignoreUpdatesModules.json`);console.log(`npm i ${(Object.keys(t.dependencies || {}).filter((e)=>ignore.base.indexOf(e) === -1).map((e)=>(`${e}@latest`)).join(` `))} --save&&npm i ${(Object.keys(t.devDependencies || {}).filter((e)=>ignore.dev.indexOf(e) === -1).map((e)=>(`${e}@latest`)).join(` `))} --save-dev`);')\""
   },
   "author": {
@@ -92,5 +98,8 @@
   "directorie": {
     "man": "./docs/",
     "test": "./test/"
+  },
+  "dependencies": {
+    "@sergdudko/objectstream": "^3.2.26"
   }
 }
