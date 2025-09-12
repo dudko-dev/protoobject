@@ -16,15 +16,12 @@ export class ProtoObjectLocalStorage {
    * @param obj - ProtoObject instance to save
    * @returns true if saved successfully, false otherwise
    */
-  public static save<T extends ProtoObject<T>>(
-    key: string,
-    obj: T
-  ): boolean {
+  public static save<T extends ProtoObject<T>>(key: string, obj: T): boolean {
     try {
       if (typeof window === "undefined" || !window.localStorage) {
         return false;
       }
-      
+
       const json = obj.toJSON();
       const serialized = JSON.stringify(json);
       window.localStorage.setItem(key, serialized);
@@ -142,7 +139,7 @@ export class ProtoObjectLocalStorage {
       }
 
       const keysToRemove = this.getKeys(prefix);
-      keysToRemove.forEach(key => window.localStorage.removeItem(key));
+      keysToRemove.forEach((key) => window.localStorage.removeItem(key));
       return keysToRemove.length;
     } catch (error) {
       console.error("ProtoObjectLocalStorage.clear error:", error);
@@ -166,7 +163,7 @@ export class ProtoObjectLocalStorage {
         return false;
       }
 
-      const jsonArray = objects.map(obj => obj.toJSON());
+      const jsonArray = objects.map((obj) => obj.toJSON());
       const serialized = JSON.stringify(jsonArray);
       window.localStorage.setItem(key, serialized);
       return true;
@@ -202,7 +199,7 @@ export class ProtoObjectLocalStorage {
         return undefined;
       }
 
-      return jsonArray.map(json => ClassConstructor.fromJSON(json));
+      return jsonArray.map((json) => ClassConstructor.fromJSON(json));
     } catch (error) {
       console.error("ProtoObjectLocalStorage.loadArray error:", error);
       return undefined;

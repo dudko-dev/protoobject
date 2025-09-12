@@ -8,12 +8,18 @@ const createMockLocalStorage = () => {
   const store: { [key: string]: string } = {};
   return {
     getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    removeItem: (key: string) => { delete store[key]; },
-    get length() { return Object.keys(store).length; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete store[key];
+    },
+    get length() {
+      return Object.keys(store).length;
+    },
     key: (index: number) => Object.keys(store)[index] || null,
     clear: () => {
-      Object.keys(store).forEach(key => delete store[key]);
+      Object.keys(store).forEach((key) => delete store[key]);
     },
   };
 };
@@ -30,7 +36,9 @@ const User = protoObjectFactory({
       id: data.id as string,
       name: data.name as string,
       email: data.email as string,
-      createdAt: data.createdAt ? new Date(data.createdAt as string) : undefined,
+      createdAt: data.createdAt
+        ? new Date(data.createdAt as string)
+        : undefined,
     });
   },
   toJSON() {
@@ -53,7 +61,7 @@ describe("ProtoObjectLocalStorage", () => {
     it("should save and load ProtoObject instance", () => {
       const user = new User({
         id: "1",
-        name: "John Doe", 
+        name: "John Doe",
         email: "john@example.com",
         createdAt: new Date("2023-01-01"),
       });
@@ -65,12 +73,20 @@ describe("ProtoObjectLocalStorage", () => {
       // Load user
       const loadedUser = ProtoObjectLocalStorage.load("user:1", User);
       ok(loadedUser, "Loaded user should exist");
-      deepEqual(loadedUser.toJSON(), user.toJSON(), "Loaded user should match original");
+      deepEqual(
+        loadedUser.toJSON(),
+        user.toJSON(),
+        "Loaded user should match original"
+      );
     });
 
     it("should return undefined for non-existent key", () => {
       const loadedUser = ProtoObjectLocalStorage.load("non-existent", User);
-      equal(loadedUser, undefined, "Should return undefined for non-existent key");
+      equal(
+        loadedUser,
+        undefined,
+        "Should return undefined for non-existent key"
+      );
     });
 
     it("should handle complex objects with dates", () => {
@@ -78,13 +94,13 @@ describe("ProtoObjectLocalStorage", () => {
       const user = new User({
         id: "2",
         name: "Jane Smith",
-        email: "jane@example.com", 
+        email: "jane@example.com",
         createdAt: testDate,
       });
 
       ProtoObjectLocalStorage.save("user:2", user);
       const loaded = ProtoObjectLocalStorage.load("user:2", User);
-      
+
       ok(loaded, "Loaded user should exist");
       equal(loaded.id, "2", "ID should match");
       equal(loaded.name, "Jane Smith", "Name should match");
@@ -96,22 +112,38 @@ describe("ProtoObjectLocalStorage", () => {
   describe("remove and exists", () => {
     it("should remove items from localStorage", () => {
       const user = new User({ id: "3", name: "Bob", email: "bob@example.com" });
-      
+
       ProtoObjectLocalStorage.save("user:3", user);
-      ok(ProtoObjectLocalStorage.exists("user:3"), "User should exist after save");
-      
+      ok(
+        ProtoObjectLocalStorage.exists("user:3"),
+        "User should exist after save"
+      );
+
       const removeResult = ProtoObjectLocalStorage.remove("user:3");
       ok(removeResult, "Remove should return true");
-      ok(!ProtoObjectLocalStorage.exists("user:3"), "User should not exist after remove");
+      ok(
+        !ProtoObjectLocalStorage.exists("user:3"),
+        "User should not exist after remove"
+      );
     });
 
     it("should check existence correctly", () => {
-      ok(!ProtoObjectLocalStorage.exists("missing"), "Non-existent key should return false");
-      
-      const user = new User({ id: "4", name: "Alice", email: "alice@example.com" });
+      ok(
+        !ProtoObjectLocalStorage.exists("missing"),
+        "Non-existent key should return false"
+      );
+
+      const user = new User({
+        id: "4",
+        name: "Alice",
+        email: "alice@example.com",
+      });
       ProtoObjectLocalStorage.save("user:4", user);
-      
-      ok(ProtoObjectLocalStorage.exists("user:4"), "Existing key should return true");
+
+      ok(
+        ProtoObjectLocalStorage.exists("user:4"),
+        "Existing key should return true"
+      );
     });
   });
 
@@ -136,18 +168,25 @@ describe("ProtoObjectLocalStorage", () => {
     });
 
     it("should clear keys with prefix", () => {
-      const user = new User({ id: "5", name: "User5", email: "user5@example.com" });
-      
+      const user = new User({
+        id: "5",
+        name: "User5",
+        email: "user5@example.com",
+      });
+
       ProtoObjectLocalStorage.save("user:5", user);
       ProtoObjectLocalStorage.save("user:6", user);
       ProtoObjectLocalStorage.save("settings:theme", user);
 
       const clearedCount = ProtoObjectLocalStorage.clear("user:");
       equal(clearedCount, 2, "Should clear 2 user items");
-      
+
       ok(!ProtoObjectLocalStorage.exists("user:5"), "user:5 should be removed");
       ok(!ProtoObjectLocalStorage.exists("user:6"), "user:6 should be removed");
-      ok(ProtoObjectLocalStorage.exists("settings:theme"), "settings:theme should remain");
+      ok(
+        ProtoObjectLocalStorage.exists("settings:theme"),
+        "settings:theme should remain"
+      );
     });
   });
 
@@ -165,23 +204,34 @@ describe("ProtoObjectLocalStorage", () => {
       const loadedUsers = ProtoObjectLocalStorage.loadArray("users", User);
       ok(loadedUsers, "Loaded users should exist");
       equal(loadedUsers.length, 3, "Should load 3 users");
-      
+
       for (let i = 0; i < users.length; i++) {
-        deepEqual(loadedUsers[i].toJSON(), users[i].toJSON(), `User ${i} should match`);
+        deepEqual(
+          loadedUsers[i].toJSON(),
+          users[i].toJSON(),
+          `User ${i} should match`
+        );
       }
     });
 
     it("should return undefined for non-existent array", () => {
-      const result = ProtoObjectLocalStorage.loadArray("non-existent-array", User);
-      equal(result, undefined, "Should return undefined for non-existent array");
+      const result = ProtoObjectLocalStorage.loadArray(
+        "non-existent-array",
+        User
+      );
+      equal(
+        result,
+        undefined,
+        "Should return undefined for non-existent array"
+      );
     });
 
     it("should handle empty arrays", () => {
       const emptyUsers: any[] = [];
-      
+
       ProtoObjectLocalStorage.saveArray("empty-users", emptyUsers);
       const loaded = ProtoObjectLocalStorage.loadArray("empty-users", User);
-      
+
       ok(loaded, "Should load empty array");
       equal(loaded.length, 0, "Loaded array should be empty");
     });
@@ -190,8 +240,11 @@ describe("ProtoObjectLocalStorage", () => {
   describe("error handling", () => {
     it("should handle invalid JSON gracefully", () => {
       // Manually set invalid JSON
-      (globalThis as any).window.localStorage.setItem("invalid-json", "{ invalid json }");
-      
+      (globalThis as any).window.localStorage.setItem(
+        "invalid-json",
+        "{ invalid json }"
+      );
+
       const result = ProtoObjectLocalStorage.load("invalid-json", User);
       equal(result, undefined, "Should return undefined for invalid JSON");
     });
@@ -203,9 +256,13 @@ describe("ProtoObjectLocalStorage", () => {
         throw new Error("Storage full");
       };
 
-      const user = new User({ id: "error", name: "Error", email: "error@example.com" });
+      const user = new User({
+        id: "error",
+        name: "Error",
+        email: "error@example.com",
+      });
       const result = ProtoObjectLocalStorage.save("error-key", user);
-      
+
       equal(result, false, "Should return false on storage error");
 
       // Restore original method
@@ -218,16 +275,28 @@ describe("ProtoObjectLocalStorage", () => {
       const originalWindow = (globalThis as any).window;
       delete (globalThis as any).window;
 
-      const user = new User({ id: "test", name: "Test", email: "test@example.com" });
-      
+      const user = new User({
+        id: "test",
+        name: "Test",
+        email: "test@example.com",
+      });
+
       const saveResult = ProtoObjectLocalStorage.save("test", user);
       equal(saveResult, false, "Should return false when window is undefined");
-      
+
       const loadResult = ProtoObjectLocalStorage.load("test", User);
-      equal(loadResult, undefined, "Should return undefined when window is undefined");
-      
+      equal(
+        loadResult,
+        undefined,
+        "Should return undefined when window is undefined"
+      );
+
       const existsResult = ProtoObjectLocalStorage.exists("test");
-      equal(existsResult, false, "Should return false when window is undefined");
+      equal(
+        existsResult,
+        false,
+        "Should return false when window is undefined"
+      );
 
       // Restore window
       (globalThis as any).window = originalWindow;
@@ -237,10 +306,18 @@ describe("ProtoObjectLocalStorage", () => {
       const originalLocalStorage = (globalThis as any).window.localStorage;
       delete (globalThis as any).window.localStorage;
 
-      const user = new User({ id: "test", name: "Test", email: "test@example.com" });
-      
+      const user = new User({
+        id: "test",
+        name: "Test",
+        email: "test@example.com",
+      });
+
       const saveResult = ProtoObjectLocalStorage.save("test", user);
-      equal(saveResult, false, "Should return false when localStorage is undefined");
+      equal(
+        saveResult,
+        false,
+        "Should return false when localStorage is undefined"
+      );
 
       // Restore localStorage
       (globalThis as any).window.localStorage = originalLocalStorage;

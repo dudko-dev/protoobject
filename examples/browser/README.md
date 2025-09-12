@@ -5,7 +5,6 @@ This example demonstrates ProtoObject working directly in the browser without No
 ## Files
 
 - `browser-demo.html` - Interactive demo page with all browser features
-- `localStorage-demo.html` - Advanced localStorage functionality demonstration
 
 ## Features Demonstrated
 
@@ -22,10 +21,9 @@ This example demonstrates ProtoObject working directly in the browser without No
 
 ## How to Run
 
-1. Open `browser-demo.html` in any modern browser for basic features
-2. Open `localStorage-demo.html` for advanced localStorage functionality
-3. Use the interactive buttons to test different features
-4. Check browser console for detailed logs
+1. Open `browser-demo.html` in any modern browser for all features
+2. Use the interactive buttons to test different features
+3. Check browser console for detailed logs
 
 ## Browser Requirements
 
