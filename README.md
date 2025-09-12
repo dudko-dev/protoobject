@@ -20,6 +20,48 @@ Inspired by gRPC and Firebase.
  npm i protoobject --save
 ```
 
+## MODULE FORMATS
+
+This library supports both **CommonJS** and **ESM** (ES Modules) formats:
+
+### CommonJS
+
+```javascript
+const { ProtoObject, StaticImplements, protoObjectFactory } = require('protoobject');
+```
+
+### ES Modules (ESM)
+
+```javascript
+import { ProtoObject, StaticImplements, protoObjectFactory } from 'protoobject';
+```
+
+The library automatically provides the correct format based on your project configuration. No additional setup required!
+
+## 📚 EXAMPLES
+
+See the [`examples/`](./examples/) directory for comprehensive usage examples:
+
+- **[JavaScript Examples](./examples/javascript/)** - Plain JavaScript usage with CommonJS
+- **[TypeScript Examples](./examples/typescript/)** - Type-safe usage with decorators and interfaces  
+- **[SQL Database Examples](./examples/sql-database/)** - Database integration patterns
+
+## 🧪 TESTING
+
+Run all tests:
+
+```bash
+npm test
+```
+
+Run specific test suites:
+
+```bash
+npm run test:ts    # TypeScript tests
+npm run test:js    # JavaScript tests  
+npm run test:sql   # SQL database tests
+```
+
 ## DOCS
 
 ### The main methods of the ProtoObject class
@@ -453,6 +495,45 @@ export class ApplicationRecord extends BaseRecord<ApplicationRecord> {
 }
 ```
 
-## LICENSE
+## 🤝 Contributing
 
-MIT
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Setup
+
+```bash
+git clone https://github.com/siarheidudko/protoobject.git
+cd protoobject
+npm install
+npm run build
+npm test
+```
+
+## 📄 License
+
+MIT License - see [LICENSE](./LICENSE) file for details.
+
+## 🆘 Support
+
+- 📝 **Issues**: [GitHub Issues](https://github.com/siarheidudko/protoobject/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/siarheidudko/protoobject/discussions)
+- 📧 **Email**: [siarhei@dudko.dev](mailto:siarhei@dudko.dev)
+
+## 💝 Support This Project
+
+If Redux Cluster helps you build amazing applications, consider supporting its development:
+
+- ☕ **[Buy me a coffee](https://www.buymeacoffee.com/dudko.dev)**
+- 💳 **[PayPal](https://paypal.me/dudkodev)**
+- 🎯 **[Patreon](https://patreon.com/dudko_dev)**
+- 🌐 **[More options](http://dudko.dev/donate)**
+
+Your support helps maintain and improve Redux Cluster for the entire community!
+
+---
+
+**Made with ❤️ by [Siarhei Dudko](https://github.com/siarheidudko)**

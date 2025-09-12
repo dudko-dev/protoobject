@@ -2,16 +2,39 @@
   "name": "protoobject",
   "version": "1.1.0",
   "description": "A universal class for creating any JSON objects and simple manipulations with them.",
-  "main": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/types/index.d.ts",
+        "default": "./lib/esm/index.js"
+      },
+      "require": {
+        "types": "./lib/types/index.d.ts",
+        "default": "./lib/cjs/index.js"
+      }
+    }
+  },
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
+    "test": "npm run test:ts && npm run test:js && npm run test:sql",
     "test:ts": "node --import=tsx --test test/ts/*.test.ts",
     "test:js": "node --test test/js/*.test.js",
     "test:sql": "node --experimental-sqlite --import=tsx --test test/sql/*.test.ts",
     "cov": "./node_modules/.bin/nyc npm run test:ts",
     "lint": "./node_modules/.bin/eslint src/**/*.ts",
     "prebuild": "npm run lint",
-    "build": "rm -rf lib && ./node_modules/.bin/tsc --declaration",
+    "build": "npm run build:clean && npm run build:cjs && npm run build:esm && npm run build:types && npm run build:package-json && npm run build:fix-esm",
+    "build:clean": "rm -rf lib",
+    "build:cjs": "./node_modules/.bin/tsc -p tsconfig.cjs.json",
+    "build:esm": "./node_modules/.bin/tsc -p tsconfig.esm.json",
+    "build:types": "./node_modules/.bin/tsc -p tsconfig.types.json",
+    "build:package-json": "echo '{\"type\":\"commonjs\"}' > lib/cjs/package.json && echo '{\"type\":\"module\"}' > lib/esm/package.json",
+    "build:fix-esm": "node fix-esm-imports.js",
     "update": "eval \"$(node -e 'const t = require(`./package.json`);const ignore = require(`./ignoreUpdatesModules.json`);console.log(`npm i ${(Object.keys(t.dependencies || {}).filter((e)=>ignore.base.indexOf(e) === -1).map((e)=>(`${e}@latest`)).join(` `))} --save&&npm i ${(Object.keys(t.devDependencies || {}).filter((e)=>ignore.dev.indexOf(e) === -1).map((e)=>(`${e}@latest`)).join(` `))} --save-dev`);')\""
   },
   "author": {
@@ -20,6 +43,10 @@
     "url": "https://dudko.dev/"
   },
   "funding": [
+    {
+      "type": "individual",
+      "url": "http://dudko.dev/donate"
+    },
     {
       "type": "buymeacoffee",
       "url": "https://www.buymeacoffee.com/dudko.dev"

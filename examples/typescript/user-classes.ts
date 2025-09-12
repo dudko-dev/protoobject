@@ -3,16 +3,17 @@ import {
   StaticImplements,
   ProtoObjectStaticMethods,
   protoObjectFactory,
-} from "../../";
+} from "protoobject";
 
-//! An option to create classes based on the interface and factory
+// Example using interface and factory pattern
 interface IUserRights extends ProtoObject<IUserRights> {
   isAdmin: boolean;
   updatedAt: Date;
 }
+
 /**
- * Example of the ProtoObject heir
- *
+ * Example of creating a class using factory pattern with TypeScript
+ * This approach provides type safety and interface compliance
  */
 export const UserRights = protoObjectFactory<IUserRights>({
   fromJSON(data) {
@@ -30,59 +31,46 @@ export const UserRights = protoObjectFactory<IUserRights>({
 });
 
 /**
- * Example of the ProtoObject heir
- *
+ * Example of creating a simple ProtoObject heir with TypeScript decorators
+ * The decorator ensures static method compliance at compile time
  */
-//! Use a decorator to check the static properties of an object.
 @StaticImplements<ProtoObjectStaticMethods<UserAddress>>()
 export class UserAddress extends ProtoObject<UserAddress> {
   constructor(data?: Partial<UserAddress>) {
     super(data);
-    //! Note that if you have described the class fields inside the class,
-    //! then you need to assign them inside the class constructor, because
-    //! the assign inside the superclass constructor will be overwritten by
-    //! undefined field values. This is a feature of the library build.
+    // Note: assign data after calling super() to ensure proper field initialization
     if (data) this.assign(data);
     return this;
   }
 
   country!: string;
-
   postCode!: string;
 }
 
 /**
- * Example of the ProtoObject heir
- *
+ * Example of creating a complex ProtoObject heir with TypeScript
+ * Includes full type safety, decorators, and custom serialization
  */
-//! Use a decorator to check the static properties of an object.
 @StaticImplements<ProtoObjectStaticMethods<User>>()
 export class User extends ProtoObject<User> {
   constructor(data?: Partial<User>) {
     super(data);
-    //! Note that if you have described the class fields inside the class,
-    //! then you need to assign them inside the class constructor, because
-    //! the assign inside the superclass constructor will be overwritten by
-    //! undefined field values. This is a feature of the library build.
+    // Note: assign data after calling super() to ensure proper field initialization
     if (data) this.assign(data);
     return this;
   }
 
   id!: string;
-
   email!: string;
-
   createdAt!: Date;
-
   photo?: Buffer;
-
   address?: UserAddress;
-
   rights?: IUserRights;
 
-  //! You can skip fields with standard types `String`, `Number`, `Boolean`
-  //! and use a superclass converter for these types, but you must implement
-  //! the conversion of the remaining types manually.
+  /**
+   * Custom JSON serialization for complex types
+   * Standard types (String, Number, Boolean) are handled automatically
+   */
   public toJSON(): { [key: string]: any } {
     return {
       ...super.toJSON.call(this),
@@ -96,9 +84,10 @@ export class User extends ProtoObject<User> {
     };
   }
 
-  //! You can skip fields with standard types `String`, `Number`, `Boolean`
-  //! and use a superclass converter for these types, but you must implement
-  //! the conversion of the remaining types manually.
+  /**
+   * Custom JSON deserialization for complex types
+   * Standard types (String, Number, Boolean) are handled automatically
+   */
   public static fromJSON<User>(data: { [key: string]: unknown }): User {
     return new User({
       ...super.fromJSON(data),

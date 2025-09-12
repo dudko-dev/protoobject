@@ -1,5 +1,5 @@
 "use strict";
-const { ProtoObject, protoObjectFactory } = require("../../");
+const { ProtoObject, protoObjectFactory } = require("../../lib/cjs/");
 
 /**
  * Example of the ProtoObject heir
