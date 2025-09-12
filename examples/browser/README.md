@@ -5,22 +5,27 @@ This example demonstrates ProtoObject working directly in the browser without No
 ## Files
 
 - `browser-demo.html` - Interactive demo page with all browser features
+- `localStorage-demo.html` - Advanced localStorage functionality demonstration
 
 ## Features Demonstrated
 
 - ✅ Basic ProtoObject functionality (create, serialize, deserialize)
 - ✅ JSON serialization/deserialization
-- ✅ LocalStorage integration
+- ✅ LocalStorage integration with ProtoObjectLocalStorage
 - ✅ Fetch API integration  
 - ✅ Performance testing
 - ✅ Environment detection
 - ✅ Error handling
+- ✅ Array storage and retrieval
+- ✅ Key management and filtering
+- ✅ Backup and restore functionality
 
 ## How to Run
 
-1. Open `browser-demo.html` in any modern browser
-2. Use the interactive buttons to test different features
-3. Check browser console for detailed logs
+1. Open `browser-demo.html` in any modern browser for basic features
+2. Open `localStorage-demo.html` for advanced localStorage functionality
+3. Use the interactive buttons to test different features
+4. Check browser console for detailed logs
 
 ## Browser Requirements
 
@@ -38,7 +43,8 @@ This example demonstrates ProtoObject working directly in the browser without No
 import { 
   ProtoObject, 
   StaticImplements,
-  protoObjectFactory 
+  protoObjectFactory,
+  ProtoObjectLocalStorage  // New localStorage utility
 } from 'protoobject/browser';
 ```
 
@@ -46,11 +52,14 @@ import {
 
 ✅ Core ProtoObject functionality
 ✅ JSON serialization/deserialization
-✅ localStorage/sessionStorage integration
+✅ localStorage/sessionStorage integration with ProtoObjectLocalStorage
 ✅ Fetch API integration
 ✅ IndexedDB integration
 ✅ WebSocket integration
 ✅ Performance API
+✅ Array storage and management
+✅ Key filtering and prefix operations
+✅ Backup and restore functionality
 
 ## What Doesn't Work in Browser
 

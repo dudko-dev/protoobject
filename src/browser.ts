@@ -21,6 +21,7 @@ export type { CollectionTransformer } from "./types/collection-transformer.js";
 
 // Utilities (browser-compatible)
 export { protoObjectFactory } from "./utils/protoobject-factory.js";
+export { ProtoObjectLocalStorage } from "./utils/protoobject-localstorage.js";
 
 // Note: The following modules are Node.js-specific and not available in browser:
 // - ProtoObjectSQLite (requires node:sqlite and node:crypto)

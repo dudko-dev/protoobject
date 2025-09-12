@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProtoObject LocalStorage Demo</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background-color: #f5f5f5;
+        }
+        .demo-section { 
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result { 
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid #007bff;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error { 
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        .success { 
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 100px;
+            font-family: monospace;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .form-row input {
+            flex: 1;
+        }
+        .form-row button {
+            flex-shrink: 0;
+        }
+        .storage-keys {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>💾 ProtoObject LocalStorage Demo</h1>
+    <p>This demo showcases advanced localStorage capabilities with ProtoObject in the browser.</p>
+
+    <div class="demo-section">
+        <h2>🧪 Environment Check</h2>
+        <button onclick="checkEnvironment()">Check Browser & LocalStorage Support</button>
+        <div id="env-result" class="result"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>👤 User Management</h2>
+        <div class="form-row">
+            <input id="user-id" placeholder="User ID" value="user1">
+            <input id="user-name" placeholder="Name" value="John Doe">
+            <input id="user-email" placeholder="Email" value="john@example.com">
+            <button onclick="saveUser()">Save User</button>
+        </div>
+        <div class="form-row">
+            <input id="load-user-id" placeholder="User ID to load" value="user1">
+            <button onclick="loadUser()">Load User</button>
+            <button onclick="deleteUser()">Delete User</button>
+        </div>
+        <button onclick="listUsers()">List All Users</button>
+        <button onclick="clearAllUsers()">Clear All Users</button>
+        <div id="user-result" class="result"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>📋 Task Management</h2>
+        <div class="form-row">
+            <input id="task-title" placeholder="Task Title" value="Complete ProtoObject demo">
+            <select id="task-priority">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+            </select>
+            <button onclick="addTask()">Add Task</button>
+        </div>
+        <button onclick="loadTasks()">Load Tasks</button>
+        <button onclick="markTaskComplete()">Mark First Task Complete</button>
+        <button onclick="clearTasks()">Clear All Tasks</button>
+        <div id="task-result" class="result"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>🔄 Advanced Operations</h2>
+        <div class="form-row">
+            <input id="prefix-filter" placeholder="Key prefix (e.g., 'user:')" value="user:">
+            <button onclick="getKeysByPrefix()">Get Keys by Prefix</button>
+        </div>
+        <div class="form-row">
+            <input id="backup-key" placeholder="Backup key" value="backup">
+            <button onclick="createBackup()">Create Backup</button>
+            <button onclick="restoreBackup()">Restore Backup</button>
+        </div>
+        <button onclick="getStorageStats()">Get Storage Stats</button>
+        <button onclick="clearAllStorage()">Clear All Storage</button>
+        <div id="advanced-result" class="result"></div>
+    </div>
+
+    <div class="demo-section">
+        <h2>📊 Current LocalStorage Keys</h2>
+        <button onclick="refreshStorageKeys()">Refresh</button>
+        <div id="storage-keys" class="storage-keys">Click refresh to see current keys...</div>
+    </div>
+
+    <script type="module">
+        // Simple ProtoObject implementation for demo
+        class ProtoObject {
+            constructor(data = {}) {
+                Object.assign(this, data);
+                return this;
+            }
+            
+            toJSON() {
+                const result = {};
+                for (const key in this) {
+                    if (this.hasOwnProperty(key) && typeof this[key] !== 'function') {
+                        result[key] = this[key];
+                    }
+                }
+                return result;
+            }
+            
+            static fromJSON(data) {
+                return new this(data);
+            }
+        }
+
+        // Simple ProtoObjectLocalStorage implementation for demo
+        class ProtoObjectLocalStorage {
+            static save(key, obj) {
+                try {
+                    if (typeof window === "undefined" || !window.localStorage) {
+                        return false;
+                    }
+                    const json = obj.toJSON();
+                    const serialized = JSON.stringify(json);
+                    window.localStorage.setItem(key, serialized);
+                    return true;
+                } catch (error) {
+                    console.error("ProtoObjectLocalStorage.save error:", error);
+                    return false;
+                }
+            }
+
+            static load(key, ClassConstructor) {
+                try {
+                    if (typeof window === "undefined" || !window.localStorage) {
+                        return undefined;
+                    }
+                    const serialized = window.localStorage.getItem(key);
+                    if (!serialized) {
+                        return undefined;
+                    }
+                    const json = JSON.parse(serialized);
+                    return ClassConstructor.fromJSON(json);
+                } catch (error) {
+                    console.error("ProtoObjectLocalStorage.load error:", error);
+                    return undefined;
+                }
+            }
+
+            static remove(key) {
+                try {
+                    if (typeof window === "undefined" || !window.localStorage) {
+                        return false;
+                    }
+                    window.localStorage.removeItem(key);
+                    return true;
+                } catch (error) {
+                    console.error("ProtoObjectLocalStorage.remove error:", error);
+                    return false;
+                }
+            }
+
+            static exists(key) {
+                try {
+                    if (typeof window === "undefined" || !window.localStorage) {
+                        return false;
+                    }
+                    return window.localStorage.getItem(key) !== null;
+                } catch (error) {
+                    console.error("ProtoObjectLocalStorage.exists error:", error);
+                    return false;
+                }
+            }
+
+            static getKeys(prefix) {
+                try {
+                    if (typeof window === "undefined" || !window.localStorage) {
+                        return [];
+                    }
+                    const keys = [];
+                    for (let i = 0; i < window.localStorage.length; i++) {
+                        const key = window.localStorage.key(i);
+                        if (key && (!prefix || key.startsWith(prefix))) {
+                            keys.push(key);
+                        }
+                    }
+                    return keys;
+                } catch (error) {
+                    console.error("ProtoObjectLocalStorage.getKeys error:", error);
+                    return [];
+                }
+            }
+
+            static clear(prefix) {
+                try {
+                    if (typeof window === "undefined" || !window.localStorage) {
+                        return 0;
+                    }
+                    const keysToRemove = this.getKeys(prefix);
+                    keysToRemove.forEach(key => window.localStorage.removeItem(key));
+                    return keysToRemove.length;
+                } catch (error) {
+                    console.error("ProtoObjectLocalStorage.clear error:", error);
+                    return 0;
+                }
+            }
+
+            static saveArray(key, objects) {
+                try {
+                    if (typeof window === "undefined" || !window.localStorage) {
+                        return false;
+                    }
+                    const jsonArray = objects.map(obj => obj.toJSON());
+                    const serialized = JSON.stringify(jsonArray);
+                    window.localStorage.setItem(key, serialized);
+                    return true;
+                } catch (error) {
+                    console.error("ProtoObjectLocalStorage.saveArray error:", error);
+                    return false;
+                }
+            }
+
+            static loadArray(key, ClassConstructor) {
+                try {
+                    if (typeof window === "undefined" || !window.localStorage) {
+                        return undefined;
+                    }
+                    const serialized = window.localStorage.getItem(key);
+                    if (!serialized) {
+                        return undefined;
+                    }
+                    const jsonArray = JSON.parse(serialized);
+                    if (!Array.isArray(jsonArray)) {
+                        return undefined;
+                    }
+                    return jsonArray.map(json => ClassConstructor.fromJSON(json));
+                } catch (error) {
+                    console.error("ProtoObjectLocalStorage.loadArray error:", error);
+                    return undefined;
+                }
+            }
+        }
+
+        // User class extending ProtoObject
+        class User extends ProtoObject {
+            constructor(data = {}) {
+                super(data);
+                this.createdAt = this.createdAt || new Date().toISOString();
+            }
+        }
+
+        // Task class extending ProtoObject
+        class Task extends ProtoObject {
+            constructor(data = {}) {
+                super(data);
+                this.id = this.id || Date.now().toString();
+                this.createdAt = this.createdAt || new Date().toISOString();
+                this.completed = this.completed || false;
+            }
+        }
+
+        // Utility functions
+        function log(elementId, message, type = '') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+        }
+
+        function logError(elementId, error) {
+            log(elementId, `❌ Error: ${error.message}`, 'error');
+        }
+
+        // Demo functions
+        window.checkEnvironment = function() {
+            try {
+                const hasLocalStorage = typeof Storage !== "undefined" && window.localStorage;
+                const hasJSON = typeof JSON !== "undefined";
+                const hasProtoObject = typeof ProtoObject !== "undefined";
+                
+                const result = {
+                    browser: navigator.userAgent,
+                    localStorage: hasLocalStorage ? "✅ Available" : "❌ Not available",
+                    JSON: hasJSON ? "✅ Available" : "❌ Not available",
+                    ProtoObject: hasProtoObject ? "✅ Available" : "❌ Not available",
+                    storageQuota: hasLocalStorage ? "~5-10MB (varies by browser)" : "N/A"
+                };
+
+                log('env-result', `Environment Check:\n${JSON.stringify(result, null, 2)}`, 'success');
+            } catch (error) {
+                logError('env-result', error);
+            }
+        };
+
+        window.saveUser = function() {
+            try {
+                const id = document.getElementById('user-id').value;
+                const name = document.getElementById('user-name').value;
+                const email = document.getElementById('user-email').value;
+
+                if (!id || !name || !email) {
+                    log('user-result', '❌ Please fill all user fields', 'error');
+                    return;
+                }
+
+                const user = new User({ id, name, email });
+                const success = ProtoObjectLocalStorage.save(`user:${id}`, user);
+
+                if (success) {
+                    log('user-result', `✅ User saved:\n${JSON.stringify(user.toJSON(), null, 2)}`, 'success');
+                    refreshStorageKeys();
+                } else {
+                    log('user-result', '❌ Failed to save user', 'error');
+                }
+            } catch (error) {
+                logError('user-result', error);
+            }
+        };
+
+        window.loadUser = function() {
+            try {
+                const id = document.getElementById('load-user-id').value;
+                if (!id) {
+                    log('user-result', '❌ Please enter user ID', 'error');
+                    return;
+                }
+
+                const user = ProtoObjectLocalStorage.load(`user:${id}`, User);
+                if (user) {
+                    log('user-result', `✅ User loaded:\n${JSON.stringify(user.toJSON(), null, 2)}`, 'success');
+                } else {
+                    log('user-result', `❌ User not found: ${id}`, 'error');
+                }
+            } catch (error) {
+                logError('user-result', error);
+            }
+        };
+
+        window.deleteUser = function() {
+            try {
+                const id = document.getElementById('load-user-id').value;
+                if (!id) {
+                    log('user-result', '❌ Please enter user ID', 'error');
+                    return;
+                }
+
+                const success = ProtoObjectLocalStorage.remove(`user:${id}`);
+                if (success) {
+                    log('user-result', `✅ User deleted: ${id}`, 'success');
+                    refreshStorageKeys();
+                } else {
+                    log('user-result', `❌ Failed to delete user: ${id}`, 'error');
+                }
+            } catch (error) {
+                logError('user-result', error);
+            }
+        };
+
+        window.listUsers = function() {
+            try {
+                const userKeys = ProtoObjectLocalStorage.getKeys('user:');
+                const users = userKeys.map(key => {
+                    const user = ProtoObjectLocalStorage.load(key, User);
+                    return { key, user: user ? user.toJSON() : null };
+                }).filter(item => item.user);
+
+                log('user-result', `✅ Found ${users.length} users:\n${JSON.stringify(users, null, 2)}`, 'success');
+            } catch (error) {
+                logError('user-result', error);
+            }
+        };
+
+        window.clearAllUsers = function() {
+            try {
+                const count = ProtoObjectLocalStorage.clear('user:');
+                log('user-result', `✅ Cleared ${count} users from storage`, 'success');
+                refreshStorageKeys();
+            } catch (error) {
+                logError('user-result', error);
+            }
+        };
+
+        window.addTask = function() {
+            try {
+                const title = document.getElementById('task-title').value;
+                const priority = document.getElementById('task-priority').value;
+
+                if (!title) {
+                    log('task-result', '❌ Please enter task title', 'error');
+                    return;
+                }
+
+                const task = new Task({ title, priority });
+                
+                // Load existing tasks
+                const tasks = ProtoObjectLocalStorage.loadArray('tasks', Task) || [];
+                tasks.push(task);
+                
+                const success = ProtoObjectLocalStorage.saveArray('tasks', tasks);
+                if (success) {
+                    log('task-result', `✅ Task added:\n${JSON.stringify(task.toJSON(), null, 2)}`, 'success');
+                    document.getElementById('task-title').value = '';
+                    refreshStorageKeys();
+                } else {
+                    log('task-result', '❌ Failed to save task', 'error');
+                }
+            } catch (error) {
+                logError('task-result', error);
+            }
+        };
+
+        window.loadTasks = function() {
+            try {
+                const tasks = ProtoObjectLocalStorage.loadArray('tasks', Task);
+                if (tasks && tasks.length > 0) {
+                    const taskData = tasks.map(task => task.toJSON());
+                    log('task-result', `✅ Loaded ${tasks.length} tasks:\n${JSON.stringify(taskData, null, 2)}`, 'success');
+                } else {
+                    log('task-result', '📝 No tasks found', 'error');
+                }
+            } catch (error) {
+                logError('task-result', error);
+            }
+        };
+
+        window.markTaskComplete = function() {
+            try {
+                const tasks = ProtoObjectLocalStorage.loadArray('tasks', Task);
+                if (!tasks || tasks.length === 0) {
+                    log('task-result', '❌ No tasks found', 'error');
+                    return;
+                }
+
+                tasks[0].completed = true;
+                tasks[0].completedAt = new Date().toISOString();
+                
+                const success = ProtoObjectLocalStorage.saveArray('tasks', tasks);
+                if (success) {
+                    log('task-result', `✅ First task marked complete:\n${JSON.stringify(tasks[0].toJSON(), null, 2)}`, 'success');
+                } else {
+                    log('task-result', '❌ Failed to update task', 'error');
+                }
+            } catch (error) {
+                logError('task-result', error);
+            }
+        };
+
+        window.clearTasks = function() {
+            try {
+                const success = ProtoObjectLocalStorage.remove('tasks');
+                if (success) {
+                    log('task-result', '✅ All tasks cleared', 'success');
+                    refreshStorageKeys();
+                } else {
+                    log('task-result', '❌ Failed to clear tasks', 'error');
+                }
+            } catch (error) {
+                logError('task-result', error);
+            }
+        };
+
+        window.getKeysByPrefix = function() {
+            try {
+                const prefix = document.getElementById('prefix-filter').value;
+                const keys = ProtoObjectLocalStorage.getKeys(prefix);
+                
+                log('advanced-result', `✅ Found ${keys.length} keys with prefix "${prefix}":\n${JSON.stringify(keys, null, 2)}`, 'success');
+            } catch (error) {
+                logError('advanced-result', error);
+            }
+        };
+
+        window.createBackup = function() {
+            try {
+                const backupKey = document.getElementById('backup-key').value;
+                const allKeys = ProtoObjectLocalStorage.getKeys();
+                const backup = {};
+                
+                allKeys.forEach(key => {
+                    if (key !== backupKey) { // Don't backup the backup itself
+                        backup[key] = localStorage.getItem(key);
+                    }
+                });
+
+                const backupObj = new ProtoObject({ backup, createdAt: new Date().toISOString() });
+                const success = ProtoObjectLocalStorage.save(backupKey, backupObj);
+                
+                if (success) {
+                    log('advanced-result', `✅ Backup created with ${Object.keys(backup).length} items`, 'success');
+                    refreshStorageKeys();
+                } else {
+                    log('advanced-result', '❌ Failed to create backup', 'error');
+                }
+            } catch (error) {
+                logError('advanced-result', error);
+            }
+        };
+
+        window.restoreBackup = function() {
+            try {
+                const backupKey = document.getElementById('backup-key').value;
+                const backupObj = ProtoObjectLocalStorage.load(backupKey, ProtoObject);
+                
+                if (!backupObj || !backupObj.backup) {
+                    log('advanced-result', '❌ No backup found', 'error');
+                    return;
+                }
+
+                // Clear current storage (except backup)
+                const allKeys = ProtoObjectLocalStorage.getKeys();
+                allKeys.forEach(key => {
+                    if (key !== backupKey) {
+                        localStorage.removeItem(key);
+                    }
+                });
+
+                // Restore from backup
+                Object.entries(backupObj.backup).forEach(([key, value]) => {
+                    localStorage.setItem(key, value);
+                });
+
+                log('advanced-result', `✅ Restored ${Object.keys(backupObj.backup).length} items from backup`, 'success');
+                refreshStorageKeys();
+            } catch (error) {
+                logError('advanced-result', error);
+            }
+        };
+
+        window.getStorageStats = function() {
+            try {
+                const allKeys = ProtoObjectLocalStorage.getKeys();
+                let totalSize = 0;
+                
+                allKeys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    totalSize += key.length + (value ? value.length : 0);
+                });
+
+                const stats = {
+                    totalKeys: allKeys.length,
+                    totalSize: `${(totalSize / 1024).toFixed(2)} KB`,
+                    estimatedQuota: "~5-10MB",
+                    usagePercentage: `~${((totalSize / (5 * 1024 * 1024)) * 100).toFixed(2)}%`,
+                    supportedTypes: "String values only (JSON serialized objects)"
+                };
+
+                log('advanced-result', `📊 Storage Statistics:\n${JSON.stringify(stats, null, 2)}`, 'success');
+            } catch (error) {
+                logError('advanced-result', error);
+            }
+        };
+
+        window.clearAllStorage = function() {
+            try {
+                if (confirm('Are you sure you want to clear ALL localStorage data?')) {
+                    localStorage.clear();
+                    log('advanced-result', '✅ All localStorage data cleared', 'success');
+                    refreshStorageKeys();
+                }
+            } catch (error) {
+                logError('advanced-result', error);
+            }
+        };
+
+        window.refreshStorageKeys = function() {
+            try {
+                const keys = ProtoObjectLocalStorage.getKeys();
+                const keysInfo = keys.map(key => {
+                    const value = localStorage.getItem(key);
+                    const size = value ? value.length : 0;
+                    return `${key} (${size} chars)`;
+                });
+
+                const display = keys.length > 0 
+                    ? `Total keys: ${keys.length}\n\n${keysInfo.join('\n')}`
+                    : 'No keys in localStorage';
+
+                document.getElementById('storage-keys').textContent = display;
+            } catch (error) {
+                document.getElementById('storage-keys').textContent = `Error: ${error.message}`;
+            }
+        };
+
+        // Auto-run environment check and refresh keys
+        setTimeout(() => {
+            checkEnvironment();
+            refreshStorageKeys();
+        }, 100);
+    </script>
+</body>
+</html>
