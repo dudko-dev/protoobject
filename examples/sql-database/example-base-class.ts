@@ -4,7 +4,7 @@ import {
   ProtoObject,
   ProtoObjectStaticMethods,
   StaticImplements,
-} from "../../src/index.js";
+} from "protoobject";
 
 export enum RecordState {
   ACTIVE,
@@ -16,7 +16,7 @@ export interface BaseRecordStaticMethods<T extends BaseRecord<T>>
   table: string;
   getById<T extends BaseRecord<T>>(
     db: DatabaseSync,
-    id: BaseRecord<T>["id"]
+    id: string
   ): Promise<T | undefined>;
 }
 
@@ -24,13 +24,12 @@ export interface BaseRecordStaticMethods<T extends BaseRecord<T>>
 export class BaseRecord<T extends BaseRecord<T>> extends ProtoObject<T> {
   constructor(data?: Partial<T>) {
     super(data);
-    if (data) this.assign(data);
-    if (typeof this.record_state === "undefined")
-      this.record_state = RecordState.ACTIVE;
-    if (!this.id) this.id = randomUUID();
+    if (typeof (this as any).record_state === "undefined")
+      (this as any).record_state = RecordState.ACTIVE;
+    if (!(this as any).id) (this as any).id = randomUUID();
     const dt = new Date();
-    if (!this.created_at) this.created_at = dt;
-    if (!this.updated_at) this.updated_at = dt;
+    if (!(this as any).created_at) (this as any).created_at = dt;
+    if (!(this as any).updated_at) (this as any).updated_at = dt;
     return this;
   }
 

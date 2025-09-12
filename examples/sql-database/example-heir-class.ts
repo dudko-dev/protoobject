@@ -1,13 +1,12 @@
-import { randomUUID } from "node:crypto";
-import { StaticImplements } from "../../src/index.js";
+import { randomUUID } from "crypto";
+import { StaticImplements } from "protoobject";
 import { BaseRecord, BaseRecordStaticMethods } from "./example-base-class";
 
 @StaticImplements<BaseRecordStaticMethods<ApplicationRecord>>()
 export class ApplicationRecord extends BaseRecord<ApplicationRecord> {
   constructor(data?: Partial<ApplicationRecord>) {
     super(data);
-    if (data) this.assign(data);
-    if (!this.api_key) this.api_key = randomUUID();
+    if (!(this as any).api_key) (this as any).api_key = randomUUID();
   }
 
   public static override table: string = `applications`;

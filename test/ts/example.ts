@@ -3,7 +3,7 @@ import {
   StaticImplements,
   ProtoObjectStaticMethods,
   protoObjectFactory,
-} from "../../";
+} from "../../src/index.js";
 
 //! An option to create classes based on the interface and factory
 interface IUserRights extends ProtoObject<IUserRights> {
@@ -15,16 +15,16 @@ interface IUserRights extends ProtoObject<IUserRights> {
  *
  */
 export const UserRights = protoObjectFactory<IUserRights>({
-  fromJSON(data) {
-    return new this({
+  fromJSON(data: { [key: string]: unknown }) {
+    return new (this as any)({
       ...ProtoObject.fromJSON(data),
-      updatedAt: new Date(data?.updatedAt),
+      updatedAt: new Date(data?.updatedAt as string),
     });
   },
-  toJSON() {
+  toJSON(): { [key: string]: any } {
     return {
       ...UserRights?.prototype?.toJSON?.call(this),
-      updatedAt: this.updatedAt?.toJSON(),
+      updatedAt: (this as any).updatedAt?.toJSON(),
     };
   },
 });
@@ -45,10 +45,6 @@ export class UserAddress extends ProtoObject<UserAddress> {
     if (data) this.assign(data);
     return this;
   }
-
-  country!: string;
-
-  postCode!: string;
 }
 
 /**
@@ -67,18 +63,6 @@ export class User extends ProtoObject<User> {
     if (data) this.assign(data);
     return this;
   }
-
-  id!: string;
-
-  email!: string;
-
-  createdAt!: Date;
-
-  photo?: Buffer;
-
-  address?: UserAddress;
-
-  rights?: IUserRights;
 
   //! You can skip fields with standard types `String`, `Number`, `Boolean`
   //! and use a superclass converter for these types, but you must implement

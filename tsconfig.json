@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "CommonJS",
+    "moduleResolution": "node",
     "allowJs": false,
     "skipLibCheck": false,
     "esModuleInterop": true,
@@ -10,16 +11,19 @@
     "outDir": "lib",
     "sourceMap": true,
     "strict": true,
+    "useDefineForClassFields": false,
     "target": "ES2021",
     "lib": ["DOM", "ES2020", "ES2021", "ES2022"],
     "resolveJsonModule": true,
     "isolatedModules": false,
     "noEmit": false,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "src"
+    "baseUrl": "src",
+    "declaration": false,
+    "declarationMap": false
   },
   "compileOnSave": true,
-  "include": ["src"],
+  "include": ["src", "test"],
   "typedocOptions": {
     "out": "./docs/",
     "theme": "default",

@@ -1,8 +1,7 @@
 "use strict";
 import { describe, it } from "node:test";
-import { deepEqual, notEqual, equal } from "node:assert";
-import { ProtoObject } from "../../src";
-import { UserAddress, User, UserRights } from "./exapmle";
+import { deepEqual, notEqual } from "node:assert";
+import { UserAddress, User, UserRights } from "./example";
 import { randomUUID } from "node:crypto";
 
 describe("Equivalence check", function () {
