@@ -1,14 +1,27 @@
+# Development files
 .github
 .nyc_output
 node_modules
 src
 test
+examples
+fix-esm-imports.js
+ignoreUpdatesModules.json
+
+# Config files
 eslint.config.mjs
 .gitignore
 .npmignore
 package-lock.json
 tsconfig.json
+tsconfig.*.json
 tslint.json
 typedoc.json
+
+# Logs and temp files
 *.log
 .vscode
+.DS_Store
+
+# Documentation (keep main README.md)
+CHANGELOG.md

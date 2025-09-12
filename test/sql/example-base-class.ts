@@ -36,14 +36,6 @@ export class BaseRecord<T extends BaseRecord<T>> extends ProtoObject<T> {
 
   public static table = `base`;
 
-  public id!: string;
-
-  public created_at!: Date;
-
-  public updated_at!: Date;
-
-  public record_state!: RecordState;
-
   public static async getById<T extends BaseRecord<T>>(
     db: DatabaseSync,
     id: BaseRecord<T>["id"]

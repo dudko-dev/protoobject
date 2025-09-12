@@ -12,12 +12,6 @@ export class ApplicationRecord extends BaseRecord<ApplicationRecord> {
 
   public static override table: string = `applications`;
 
-  public api_key!: string;
-
-  public app_name!: PublicKeyCredentialCreationOptions["rp"]["name"];
-
-  public app_params!: { [key: string]: string | number | boolean | null };
-
   public static fromJSON<T>(data: { [key: string]: unknown }) {
     return new ApplicationRecord({
       ...super.fromJSON(data),

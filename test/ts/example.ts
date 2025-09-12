@@ -10,7 +10,6 @@ interface IUserRights extends ProtoObject<IUserRights> {
   isAdmin: boolean;
   updatedAt: Date;
 }
-
 /**
  * Example of the ProtoObject heir
  *
@@ -46,10 +45,6 @@ export class UserAddress extends ProtoObject<UserAddress> {
     if (data) this.assign(data);
     return this;
   }
-
-  country!: string;
-
-  postCode!: string;
 }
 
 /**
@@ -68,18 +63,6 @@ export class User extends ProtoObject<User> {
     if (data) this.assign(data);
     return this;
   }
-
-  id!: string;
-
-  email!: string;
-
-  createdAt!: Date;
-
-  photo?: Buffer;
-
-  address?: UserAddress;
-
-  rights?: IUserRights;
 
   //! You can skip fields with standard types `String`, `Number`, `Boolean`
   //! and use a superclass converter for these types, but you must implement

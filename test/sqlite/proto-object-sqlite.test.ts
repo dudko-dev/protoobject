@@ -4,20 +4,28 @@ import { DatabaseSync } from "node:sqlite";
 import { ProtoObjectSQLite, RecordState, StaticImplements } from "../../src";
 import { ProtoObjectSQLiteStaticMethods } from "../../src/classes/proto-object-sqlite";
 
+// Test entity interfaces
+interface UserData {
+  name?: string;
+  email?: string;
+  age?: number;
+}
+
+interface ProfileData {
+  user_id?: string;
+  bio?: string;
+  avatar_url?: string;
+}
+
 // Test entity classes
 @StaticImplements<ProtoObjectSQLiteStaticMethods<User>>()
 class User extends ProtoObjectSQLite<User> {
   constructor(data?: Partial<User>) {
     super(data);
-    if (data) this.assign(data);
     return this;
   }
 
   public static override table = "users";
-
-  public name!: string;
-  public email!: string;
-  public age?: number;
 
   public static async createTable(db: DatabaseSync): Promise<void> {
     const sql = `
@@ -59,15 +67,10 @@ class User extends ProtoObjectSQLite<User> {
 class Profile extends ProtoObjectSQLite<Profile> {
   constructor(data?: Partial<Profile>) {
     super(data);
-    if (data) this.assign(data);
     return this;
   }
 
   public static override table = "profiles";
-
-  public user_id!: string;
-  public bio?: string;
-  public avatar_url?: string;
 
   public static async createTable(db: DatabaseSync): Promise<void> {
     const sql = `
@@ -151,6 +154,7 @@ describe("ProtoObjectSQLite Tests", function () {
     await user.insert(db);
 
     // Retrieve by ID
+    ok(user.id, "User should have an ID after insert");
     const retrievedUser = await User.getById<User>(db, user.id);
     ok(retrievedUser);
     equal(retrievedUser.name, "John Doe");
@@ -181,10 +185,12 @@ describe("ProtoObjectSQLite Tests", function () {
     await user.update(db);
 
     // Verify update
+    ok(user.id, "User should have an ID");
     const updated = await User.getById<User>(db, user.id);
     ok(updated);
     equal(updated.name, "Jane Smith");
     equal(updated.age, 26);
+    ok(updated.updated_at && updated.created_at);
     ok(updated.updated_at > updated.created_at);
 
     teardownDatabase();
@@ -256,6 +262,7 @@ describe("ProtoObjectSQLite Tests", function () {
     equal(user.record_state, RecordState.DELETED);
 
     // Record should still exist in database
+    ok(user.id, "User should have an ID");
     const deleted = await User.getById<User>(db, user.id);
     ok(deleted);
     equal(deleted.record_state, RecordState.DELETED);
@@ -280,6 +287,7 @@ describe("ProtoObjectSQLite Tests", function () {
     await user.delete(db);
 
     // Record should not exist
+    ok(user.id, "User should have an ID");
     const deleted = await User.getById<User>(db, user.id);
     equal(deleted, undefined);
 
@@ -305,6 +313,7 @@ describe("ProtoObjectSQLite Tests", function () {
     await profile.insert(db);
 
     // Retrieve profile
+    ok(profile.id, "Profile should have an ID");
     const retrievedProfile = await Profile.getById<Profile>(db, profile.id);
     ok(retrievedProfile);
     equal(retrievedProfile.user_id, user.id);
@@ -330,6 +339,7 @@ describe("ProtoObjectSQLite Tests", function () {
 
     // First save should insert
     await user.save(db);
+    ok(user.id, "User should have an ID after save");
     const inserted = await User.getById<User>(db, user.id);
     ok(inserted);
 

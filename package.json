@@ -21,12 +21,13 @@
     "lib/**/*"
   ],
   "scripts": {
-    "test": "npm run test:ts && npm run test:js && npm run test:sql && npm run test:sqlite && npm run test:stream && npm run test:crypto && npm run test:fs",
+    "test": "npm run test:ts && npm run test:js && npm run test:sql && npm run test:sqlite && npm run test:stream && npm run test:crypto && npm run test:fs && npm run test:tcp",
     "test:ts": "node --import=tsx --test test/ts/*.test.ts",
     "test:js": "node --test test/js/*.test.js",
     "test:sql": "node --experimental-sqlite --import=tsx --test test/sql/*.test.ts",
     "test:sqlite": "node --experimental-sqlite --import=tsx --test test/sqlite/*.test.ts",
     "test:stream": "node --import=tsx --test test/stream/*.test.ts",
+    "test:tcp": "node --import=tsx --test test/tcp/*.test.ts",
     "test:crypto": "node --import=tsx --test test/crypto/*.test.ts",
     "test:fs": "node --import=tsx --test test/fs/*.test.ts",
     "cov": "./node_modules/.bin/nyc npm run test:ts",

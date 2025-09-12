@@ -10,6 +10,13 @@ export enum RecordState {
   DELETED,
 }
 
+export interface ProtoObjectSQLiteBase {
+  id?: string;
+  created_at?: Date;
+  updated_at?: Date;
+  record_state?: RecordState;
+}
+
 export interface ProtoObjectSQLiteStaticMethods<T extends ProtoObjectSQLite<T>>
   extends ProtoObjectStaticMethods<T> {
   table: string;
@@ -45,21 +52,20 @@ export class ProtoObjectSQLite<
 > extends ProtoObject<T> {
   constructor(data?: Partial<T>) {
     super(data);
-    if (data) this.assign(data);
 
     // Auto-initialize common fields if not provided
-    if (typeof this.record_state === "undefined") {
-      this.record_state = RecordState.ACTIVE;
+    if (typeof (this as any).record_state === "undefined") {
+      (this as any).record_state = RecordState.ACTIVE;
     }
-    if (!this.id) {
-      this.id = randomUUID();
+    if (!(this as any).id) {
+      (this as any).id = randomUUID();
     }
     const now = new Date();
-    if (!this.created_at) {
-      this.created_at = now;
+    if (!(this as any).created_at) {
+      (this as any).created_at = now;
     }
-    if (!this.updated_at) {
-      this.updated_at = now;
+    if (!(this as any).updated_at) {
+      (this as any).updated_at = now;
     }
 
     return this;
@@ -70,12 +76,6 @@ export class ProtoObjectSQLite<
 
   // Default primary key - can be overridden if needed
   public static primaryKey = "id";
-
-  // Common fields for all SQLite entities
-  public id!: string;
-  public created_at!: Date;
-  public updated_at!: Date;
-  public record_state!: RecordState;
 
   /**
    * Find record by ID
@@ -192,10 +192,13 @@ export class ProtoObjectSQLite<
    * Reload current instance from database
    */
   public async reload(db: DatabaseSync): Promise<T> {
+    if (!(this as any).id) {
+      throw new Error("Cannot reload record without ID");
+    }
     const classNode = this.constructor as ProtoObjectSQLiteStaticMethods<T>;
-    const dbRecord = await classNode.getById<T>(db, this.id);
+    const dbRecord = await classNode.getById<T>(db, (this as any).id);
     if (!dbRecord) {
-      throw new Error(`Record with ID ${this.id} not found`);
+      throw new Error(`Record with ID ${(this as any).id} not found`);
     }
     return this.assign(dbRecord);
   }
@@ -204,8 +207,11 @@ export class ProtoObjectSQLite<
    * Save (insert or update) record to database
    */
   public async save(db: DatabaseSync): Promise<T> {
+    if (!(this as any).id) {
+      throw new Error("Cannot save record without ID");
+    }
     const classNode = this.constructor as ProtoObjectSQLiteStaticMethods<T>;
-    const existing = await classNode.getById<T>(db, this.id);
+    const existing = await classNode.getById<T>(db, (this as any).id);
 
     if (existing) {
       return this.update(db);
@@ -219,8 +225,8 @@ export class ProtoObjectSQLite<
    */
   public async insert(db: DatabaseSync): Promise<T> {
     const classNode = this.constructor as ProtoObjectSQLiteStaticMethods<T>;
-    this.created_at = new Date();
-    this.updated_at = new Date();
+    (this as any).created_at = new Date();
+    (this as any).updated_at = new Date();
 
     const jsonData = this.toJSON();
 
@@ -254,8 +260,11 @@ export class ProtoObjectSQLite<
    * Update existing record
    */
   public async update(db: DatabaseSync): Promise<T> {
+    if (!(this as any).id) {
+      throw new Error("Cannot update record without ID");
+    }
     const classNode = this.constructor as ProtoObjectSQLiteStaticMethods<T>;
-    this.updated_at = new Date();
+    (this as any).updated_at = new Date();
 
     const jsonData = this.toJSON();
     delete jsonData[classNode.primaryKey];
@@ -267,7 +276,7 @@ export class ProtoObjectSQLite<
     const sql = `UPDATE ${classNode.table} SET ${setClause} WHERE ${classNode.primaryKey} = ?`;
 
     try {
-      db.prepare(sql).run(...Object.values(jsonData), this.id);
+      db.prepare(sql).run(...Object.values(jsonData), (this as any).id);
       return this as unknown as T;
     } catch (error) {
       console.error(`Error updating record: ${error}`);
@@ -279,7 +288,7 @@ export class ProtoObjectSQLite<
    * Soft delete (mark as deleted)
    */
   public async softDelete(db: DatabaseSync): Promise<T> {
-    this.record_state = RecordState.DELETED;
+    (this as any).record_state = RecordState.DELETED;
     return this.update(db);
   }
 
@@ -287,12 +296,15 @@ export class ProtoObjectSQLite<
    * Hard delete (remove from database)
    */
   public async delete(db: DatabaseSync): Promise<void> {
+    if (!(this as any).id) {
+      throw new Error("Cannot delete record without ID");
+    }
     const classNode = this.constructor as ProtoObjectSQLiteStaticMethods<T>;
 
     try {
       db.prepare(
         `DELETE FROM ${classNode.table} WHERE ${classNode.primaryKey} = ?`
-      ).run(this.id);
+      ).run((this as any).id);
     } catch (error) {
       console.error(`Error deleting record: ${error}`);
       throw error;
@@ -303,8 +315,11 @@ export class ProtoObjectSQLite<
    * Check if record exists in database
    */
   public async exists(db: DatabaseSync): Promise<boolean> {
+    if (!(this as any).id) {
+      return false;
+    }
     const classNode = this.constructor as ProtoObjectSQLiteStaticMethods<T>;
-    const existing = await classNode.getById<T>(db, this.id);
+    const existing = await classNode.getById<T>(db, (this as any).id);
     return !!existing;
   }
 
@@ -312,17 +327,17 @@ export class ProtoObjectSQLite<
    * Enhanced fromJSON with Date parsing
    */
   public static fromJSON<T>(data: { [key: string]: unknown }): T {
-    return new this({
-      ...super.fromJSON(data),
-      created_at:
-        typeof data.created_at === "string"
-          ? new Date(data.created_at)
-          : undefined,
-      updated_at:
-        typeof data.updated_at === "string"
-          ? new Date(data.updated_at)
-          : undefined,
-    }) as T;
+    const instance = new this() as any;
+    Object.assign(instance, super.fromJSON(data));
+
+    if (typeof data.created_at === "string") {
+      instance.created_at = new Date(data.created_at);
+    }
+    if (typeof data.updated_at === "string") {
+      instance.updated_at = new Date(data.updated_at);
+    }
+
+    return instance as T;
   }
 
   /**
@@ -332,10 +347,10 @@ export class ProtoObjectSQLite<
     const baseData = super.toJSON();
     const result: { [key: string]: any } = { ...baseData };
 
-    if (this.created_at !== undefined)
-      result.created_at = this.created_at.toJSON();
-    if (this.updated_at !== undefined)
-      result.updated_at = this.updated_at.toJSON();
+    if ((this as any).created_at !== undefined)
+      result.created_at = (this as any).created_at.toJSON();
+    if ((this as any).updated_at !== undefined)
+      result.updated_at = (this as any).updated_at.toJSON();
 
     return result;
   }

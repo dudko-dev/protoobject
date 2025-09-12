@@ -17,7 +17,16 @@ export {
 } from "./classes/proto-object-sqlite.js";
 
 // TCP Network integration
-export { ProtoObjectTCP, MessageType } from "./classes/proto-object-tcp.js";
+export {
+  ProtoObjectTCP,
+  MessageType,
+  ProtoObjectTCPServer,
+  ProtoObjectTCPClient,
+} from "./classes/proto-object-tcp.js";
+export type {
+  TCPMessage,
+  ProtoObjectTCPStaticMethods,
+} from "./classes/proto-object-tcp.js";
 
 // Stream processing with @sergdudko/objectstream
 export { ProtoObjectStream } from "./classes/proto-object-stream.js";

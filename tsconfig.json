@@ -11,6 +11,7 @@
     "outDir": "lib",
     "sourceMap": true,
     "strict": true,
+    "useDefineForClassFields": false,
     "target": "ES2021",
     "lib": ["DOM", "ES2020", "ES2021", "ES2022"],
     "resolveJsonModule": true,

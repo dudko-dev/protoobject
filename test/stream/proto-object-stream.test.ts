@@ -9,11 +9,6 @@ import type { ProtoObjectStaticMethods } from "../../src/types/static-methods.js
 // Test class for streaming
 @StaticImplements<ProtoObjectStaticMethods<TestStreamObject>>()
 class TestStreamObject extends ProtoObject<TestStreamObject> {
-  public id?: string;
-  public name?: string;
-  public value?: number;
-  public active?: boolean;
-
   constructor(data?: Partial<TestStreamObject>) {
     super(data);
     if (data) this.assign(data);

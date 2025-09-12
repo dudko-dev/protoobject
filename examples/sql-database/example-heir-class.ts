@@ -6,17 +6,10 @@ import { BaseRecord, BaseRecordStaticMethods } from "./example-base-class";
 export class ApplicationRecord extends BaseRecord<ApplicationRecord> {
   constructor(data?: Partial<ApplicationRecord>) {
     super(data);
-    if (data) this.assign(data);
-    if (!this.api_key) this.api_key = randomUUID();
+    if (!(this as any).api_key) (this as any).api_key = randomUUID();
   }
 
   public static override table: string = `applications`;
-
-  public api_key!: string;
-
-  public app_name!: PublicKeyCredentialCreationOptions["rp"]["name"];
-
-  public app_params!: { [key: string]: string | number | boolean | null };
 
   public static fromJSON<T>(data: { [key: string]: unknown }) {
     return new ApplicationRecord({
