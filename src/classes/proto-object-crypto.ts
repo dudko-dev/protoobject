@@ -2,8 +2,6 @@
  * ProtoObjectCrypto - Cryptographic utilities for ProtoObject
  * @description Provides encryption, hashing, and digital signature capabilities
  * @author Siarhei Dudko <siarhei@dudko.dev>
- * @copyright 2024
- * @license MIT
  */
 
 import {

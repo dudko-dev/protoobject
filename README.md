@@ -38,10 +38,69 @@ import { ProtoObject, StaticImplements, protoObjectFactory } from 'protoobject';
 
 The library automatically provides the correct format based on your project configuration. No additional setup required!
 
+## 🌐 BROWSER COMPATIBILITY
+
+ProtoObject works in **both Node.js and Browser environments**:
+
+### Browser Usage
+
+For browser compatibility, use the browser-specific import:
+
+```javascript
+// Browser-compatible imports only (excludes Node.js-specific modules)
+import { 
+  ProtoObject, 
+  StaticImplements,
+  protoObjectFactory 
+} from 'protoobject/browser';
+```
+
+### Node.js Usage
+
+For Node.js, use the full import with all modules:
+
+```javascript
+// Full import with all modules including Node.js-specific
+import { 
+  ProtoObject,
+  ProtoObjectSQLite,
+  ProtoObjectTCP,
+  ProtoObjectCrypto,
+  ProtoObjectFS,
+  ProtoObjectStream
+} from 'protoobject';
+```
+
+### Browser Support
+
+- ✅ Chrome 80+
+- ✅ Firefox 75+
+- ✅ Safari 13+
+- ✅ Edge 80+
+- ✅ ES6+ and ES Modules support
+
+### What Works in Browser
+
+- ✅ Core ProtoObject functionality
+- ✅ JSON serialization/deserialization
+- ✅ localStorage/sessionStorage integration
+- ✅ Fetch API integration
+- ✅ IndexedDB integration
+- ✅ WebSocket integration
+
+### What's Node.js Only
+
+- ❌ ProtoObjectSQLite (use IndexedDB in browser)
+- ❌ ProtoObjectTCP (use WebSockets/Fetch in browser)
+- ❌ ProtoObjectCrypto (use Web Crypto API in browser)
+- ❌ ProtoObjectFS (use localStorage/IndexedDB/Fetch in browser)
+- ❌ ProtoObjectStream (use browser streams or fetch in browser)
+
 ## 📚 EXAMPLES
 
 See the [`examples/`](./examples/) directory for comprehensive usage examples:
 
+- **[Browser Examples](./examples/browser/)** - Browser compatibility with interactive demo
 - **[JavaScript Examples](./examples/javascript/)** - Plain JavaScript usage with CommonJS
 - **[TypeScript Examples](./examples/typescript/)** - Type-safe usage with decorators and interfaces  
 - **[SQL Database Examples](./examples/sql-database/)** - Database integration patterns

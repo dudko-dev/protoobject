@@ -2,8 +2,6 @@
  * ProtoObjectStream - Streaming utilities for ProtoObject using @sergdudko/objectstream
  * @description Provides methods for efficient streaming serialization and deserialization
  * @author Siarhei Dudko <siarhei@dudko.dev>
- * @copyright 2024
- * @license MIT
  */
 
 /* eslint-disable no-unused-vars */

@@ -15,13 +15,24 @@
         "types": "./lib/types/index.d.ts",
         "default": "./lib/cjs/index.js"
       }
+    },
+    "./browser": {
+      "import": {
+        "types": "./lib/types/browser.d.ts",
+        "default": "./lib/esm/browser.js"
+      },
+      "require": {
+        "types": "./lib/types/browser.d.ts",
+        "default": "./lib/cjs/browser.js"
+      }
     }
   },
+  "browser": "./lib/esm/browser.js",
   "files": [
     "lib/**/*"
   ],
   "scripts": {
-    "test": "npm run test:ts && npm run test:js && npm run test:sql && npm run test:sqlite && npm run test:stream && npm run test:crypto && npm run test:fs && npm run test:tcp",
+    "test": "npm run test:ts && npm run test:js && npm run test:sql && npm run test:sqlite && npm run test:stream && npm run test:crypto && npm run test:fs && npm run test:tcp && npm run test:browser-node",
     "test:ts": "node --import=tsx --test test/ts/*.test.ts",
     "test:js": "node --test test/js/*.test.js",
     "test:sql": "node --experimental-sqlite --import=tsx --test test/sql/*.test.ts",
@@ -30,6 +41,8 @@
     "test:tcp": "node --import=tsx --test test/tcp/*.test.ts",
     "test:crypto": "node --import=tsx --test test/crypto/*.test.ts",
     "test:fs": "node --import=tsx --test test/fs/*.test.ts",
+    "test:browser": "echo 'Open test/browser/browser-esm-test.html in your browser to run browser tests'",
+    "test:browser-node": "node --import=tsx --test test/browser/*.test.ts",
     "cov": "./node_modules/.bin/nyc npm run test:ts",
     "lint": "./node_modules/.bin/eslint src/**/*.ts",
     "prebuild": "npm run lint",

@@ -34,6 +34,14 @@ This directory contains usage examples of the ProtoObject library for various sc
 - **sqlite-relations/** - Related objects
 - **sqlite-migrations/** - Schema migrations
 
+### 📁 Browser (`browser/`)
+
+Browser compatibility examples:
+
+- `browser-demo.html` - Interactive browser demonstration with core features
+- Compatible with modern browsers (Chrome 80+, Firefox 75+, Safari 13+, Edge 80+)
+- Note: Streaming features require Node.js environment
+
 ### 📁 JavaScript (`javascript/`)
 
 JavaScript examples:

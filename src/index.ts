@@ -2,9 +2,6 @@
  * A universal class for creating any JSON objects and simple manipulations with them.
  * @module protoobject
  * @author Siarhei Dudko <siarhei@dudko.dev>
- * @copyright 2024
- * @license MIT
- * @version 1.1.0
  */
 
 // Core classes
