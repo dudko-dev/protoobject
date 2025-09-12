@@ -32,7 +32,8 @@
     "lib/**/*"
   ],
   "scripts": {
-    "test": "npm run test:ts && npm run test:js && npm run test:sql && npm run test:sqlite && npm run test:stream && npm run test:crypto && npm run test:fs && npm run test:tcp && npm run test:browser-node",
+    "test": "npm run test:ts && npm run test:js && npm run test:sql && npm run test:sqlite && npm run test:stream && npm run test:crypto && npm run test:fs && npm run test:tcp && npm run test:browser-node && npm run test:transformers",
+    "test:transformers": "node --import=tsx --test test/transformers/*.test.ts",
     "test:ts": "node --import=tsx --test test/ts/*.test.ts",
     "test:js": "node --test test/js/*.test.js",
     "test:sql": "node --experimental-sqlite --import=tsx --test test/sql/*.test.ts",
