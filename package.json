@@ -4,28 +4,29 @@
   "description": "A universal class for creating any JSON objects and simple manipulations with them.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
-  "types": "./lib/types/index.d.ts",
+  "types": "./lib/index.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./lib/types/index.d.ts",
+        "types": "./lib/index.d.ts",
         "default": "./lib/esm/index.js"
       },
       "require": {
-        "types": "./lib/types/index.d.ts",
+        "types": "./lib/index.d.ts",
         "default": "./lib/cjs/index.js"
       }
     },
     "./browser": {
       "import": {
-        "types": "./lib/types/browser.d.ts",
+        "types": "./lib/browser.d.ts",
         "default": "./lib/esm/browser.js"
       },
       "require": {
-        "types": "./lib/types/browser.d.ts",
+        "types": "./lib/browser.d.ts",
         "default": "./lib/cjs/browser.js"
       }
-    }
+    },
+    "./package.json": "./package.json"
   },
   "browser": "./lib/esm/browser.js",
   "files": [

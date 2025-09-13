@@ -3,62 +3,10 @@
 import { ProtoObject } from "../classes/proto-object";
 import { ProtoObjectStaticMethods } from "../types/static-methods";
 import { UnknownObject } from "../types/unknown-object";
+import type { StorageType, StorageOptions } from "../types/browser-storage";
 
-/**
- * Storage types supported by ProtoObjectBrowserStorage
- */
-export type StorageType =
-  | "local"
-  | "session"
-  | "indexeddb"
-  | "cookies"
-  | "broadcast"
-  | "worker";
-
-/**
- * Configuration for ProtoObject browser storage
- */
-export interface StorageOptions {
-  /**
-   * Type of storage to use
-   */
-  type: StorageType;
-
-  /**
-   * Database name for IndexedDB (optional, defaults to 'ProtoObjectDB')
-   */
-  dbName?: string;
-
-  /**
-   * Object store name for IndexedDB (optional, defaults to 'objects')
-   */
-  storeName?: string;
-
-  /**
-   * Cookie domain (optional, defaults to current domain)
-   */
-  domain?: string;
-
-  /**
-   * Cookie path (optional, defaults to '/')
-   */
-  path?: string;
-
-  /**
-   * Cookie max age in seconds (optional, defaults to 1 year)
-   */
-  maxAge?: number;
-
-  /**
-   * Worker script URL for worker storage
-   */
-  workerScript?: string;
-
-  /**
-   * Broadcast channel name (optional, defaults to 'protoobject-channel')
-   */
-  channelName?: string;
-}
+// Re-export types for convenience
+export type { StorageType, StorageOptions } from "../types/browser-storage";
 
 /**
  * Universal ProtoObject browser storage utility
@@ -80,30 +28,7 @@ export class ProtoObjectBrowserStorage {
     try {
       const json = obj.toJSON();
       const serialized = JSON.stringify(json);
-
-      switch (options.type) {
-        case "local":
-          return this.saveToWebStorage(key, serialized, "localStorage");
-
-        case "session":
-          return this.saveToWebStorage(key, serialized, "sessionStorage");
-
-        case "indexeddb":
-          return await this.saveToIndexedDB(key, json, options);
-
-        case "cookies":
-          return this.saveToCookies(key, serialized, options);
-
-        case "broadcast":
-          return this.saveToBroadcast(key, json, options);
-
-        case "worker":
-          return await this.saveToWorker(key, json, options);
-
-        default:
-          console.error(`Unsupported storage type: ${options.type}`);
-          return false;
-      }
+      return await this.saveData(key, json, serialized, options);
     } catch (error) {
       console.error("ProtoObjectBrowserStorage.save error:", error);
       return false;
@@ -119,38 +44,7 @@ export class ProtoObjectBrowserStorage {
     options: StorageOptions = { type: "local" }
   ): Promise<T | undefined> {
     try {
-      let data: UnknownObject | undefined;
-
-      switch (options.type) {
-        case "local":
-          data = this.loadFromWebStorage(key, "localStorage");
-          break;
-
-        case "session":
-          data = this.loadFromWebStorage(key, "sessionStorage");
-          break;
-
-        case "indexeddb":
-          data = await this.loadFromIndexedDB(key, options);
-          break;
-
-        case "cookies":
-          data = this.loadFromCookies(key);
-          break;
-
-        case "broadcast":
-          data = this.loadFromBroadcast(key, options);
-          break;
-
-        case "worker":
-          data = await this.loadFromWorker(key, options);
-          break;
-
-        default:
-          console.error(`Unsupported storage type: ${options.type}`);
-          return undefined;
-      }
-
+      const data = await this.loadData(key, options);
       return data ? ClassConstructor.fromJSON(data) : undefined;
     } catch (error) {
       console.error("ProtoObjectBrowserStorage.load error:", error);
@@ -164,6 +58,118 @@ export class ProtoObjectBrowserStorage {
   public static async remove(
     key: string,
     options: StorageOptions = { type: "local" }
+  ): Promise<boolean> {
+    return await this.removeData(key, options);
+  }
+
+  /**
+   * Check if key exists in browser storage
+   */
+  public static async exists(
+    key: string,
+    options: StorageOptions = { type: "local" }
+  ): Promise<boolean> {
+    return await this.existsData(key, options);
+  }
+
+  /**
+   * Get all keys with optional prefix filter
+   */
+  public static async getKeys(
+    prefix?: string,
+    options: StorageOptions = { type: "local" }
+  ): Promise<string[]> {
+    return await this.getKeysData(prefix, options);
+  }
+
+  /**
+   * Clear storage with optional prefix filter
+   */
+  public static async clear(
+    prefix?: string,
+    options: StorageOptions = { type: "local" }
+  ): Promise<number> {
+    try {
+      const keys = await this.getKeys(prefix, options);
+      let removed = 0;
+
+      for (const key of keys) {
+        if (await this.remove(key, options)) {
+          removed += 1;
+        }
+      }
+
+      return removed;
+    } catch (error) {
+      console.error("ProtoObjectBrowserStorage.clear error:", error);
+      return 0;
+    }
+  }
+
+  // Private delegation methods to reduce code duplication
+  private static async saveData(
+    key: string,
+    json: UnknownObject,
+    serialized: string,
+    options: StorageOptions
+  ): Promise<boolean> {
+    switch (options.type) {
+      case "local":
+        return this.saveToWebStorage(key, serialized, "localStorage");
+
+      case "session":
+        return this.saveToWebStorage(key, serialized, "sessionStorage");
+
+      case "indexeddb":
+        return await this.saveToIndexedDB(key, json, options);
+
+      case "cookies":
+        return this.saveToCookies(key, serialized, options);
+
+      case "broadcast":
+        return this.saveToBroadcast(key, json, options);
+
+      case "worker":
+        return await this.saveToWorker(key, json, options);
+
+      default:
+        console.error(`Unsupported storage type: ${options.type}`);
+        return false;
+    }
+  }
+
+  private static async loadData(
+    key: string,
+    options: StorageOptions
+  ): Promise<UnknownObject | undefined> {
+    switch (options.type) {
+      case "local":
+        return this.loadFromWebStorage(key, "localStorage");
+
+      case "session":
+        return this.loadFromWebStorage(key, "sessionStorage");
+
+      case "indexeddb":
+        return await this.loadFromIndexedDB(key, options);
+
+      case "cookies":
+        return this.loadFromCookies(key);
+
+      case "broadcast":
+        return this.loadFromBroadcast(key, options);
+
+      case "worker":
+        return await this.loadFromWorker(key, options);
+
+      default:
+        console.error(`Unsupported storage type: ${options.type}`);
+        return undefined;
+    }
+  }
+
+  private static async removeData(
+    key: string,
+    options: StorageOptions
   ): Promise<boolean> {
     try {
       switch (options.type) {
@@ -195,12 +201,9 @@ export class ProtoObjectBrowserStorage {
     }
   }
 
-  /**
-   * Check if key exists in browser storage
-   */
-  public static async exists(
+  private static async existsData(
     key: string,
-    options: StorageOptions = { type: "local" }
+    options: StorageOptions
   ): Promise<boolean> {
     try {
       switch (options.type) {
@@ -232,12 +235,9 @@ export class ProtoObjectBrowserStorage {
     }
   }
 
-  /**
-   * Get all keys with optional prefix filter
-   */
-  public static async getKeys(
-    prefix?: string,
-    options: StorageOptions = { type: "local" }
+  private static async getKeysData(
+    prefix: string | undefined,
+    options: StorageOptions
   ): Promise<string[]> {
     try {
       switch (options.type) {
@@ -266,30 +266,6 @@ export class ProtoObjectBrowserStorage {
     } catch (error) {
       console.error("ProtoObjectBrowserStorage.getKeys error:", error);
       return [];
-    }
-  }
-
-  /**
-   * Clear storage with optional prefix filter
-   */
-  public static async clear(
-    prefix?: string,
-    options: StorageOptions = { type: "local" }
-  ): Promise<number> {
-    try {
-      const keys = await this.getKeys(prefix, options);
-      let removed = 0;
-
-      for (const key of keys) {
-        if (await this.remove(key, options)) {
-          removed += 1;
-        }
-      }
-
-      return removed;
-    } catch (error) {
-      console.error("ProtoObjectBrowserStorage.clear error:", error);
-      return 0;
     }
   }
 
@@ -852,30 +828,12 @@ export class ProtoObjectBrowserStorage {
     try {
       const jsonArray = objects.map((obj) => obj.toJSON());
       const serialized = JSON.stringify({ array: jsonArray });
-
-      switch (options.type) {
-        case "local":
-          return this.saveToWebStorage(key, serialized, "localStorage");
-
-        case "session":
-          return this.saveToWebStorage(key, serialized, "sessionStorage");
-
-        case "indexeddb":
-          return await this.saveToIndexedDB(key, { array: jsonArray }, options);
-
-        case "cookies":
-          return this.saveToCookies(key, serialized, options);
-
-        case "broadcast":
-          return this.saveToBroadcast(key, { array: jsonArray }, options);
-
-        case "worker":
-          return await this.saveToWorker(key, { array: jsonArray }, options);
-
-        default:
-          console.error(`Unsupported storage type: ${options.type}`);
-          return false;
-      }
+      return await this.saveData(
+        key,
+        { array: jsonArray },
+        serialized,
+        options
+      );
     } catch (error) {
       console.error("ProtoObjectBrowserStorage.saveArray error:", error);
       return false;
@@ -888,37 +846,7 @@ export class ProtoObjectBrowserStorage {
     options: StorageOptions = { type: "local" }
   ): Promise<T[] | undefined> {
     try {
-      let data: any;
-
-      switch (options.type) {
-        case "local":
-          data = this.loadFromWebStorage(key, "localStorage");
-          break;
-
-        case "session":
-          data = this.loadFromWebStorage(key, "sessionStorage");
-          break;
-
-        case "indexeddb":
-          data = await this.loadFromIndexedDB(key, options);
-          break;
-
-        case "cookies":
-          data = this.loadFromCookies(key);
-          break;
-
-        case "broadcast":
-          data = this.loadFromBroadcast(key, options);
-          break;
-
-        case "worker":
-          data = await this.loadFromWorker(key, options);
-          break;
-
-        default:
-          console.error(`Unsupported storage type: ${options.type}`);
-          return undefined;
-      }
+      const data = await this.loadData(key, options);
 
       if (!data || !Array.isArray(data.array)) {
         return undefined;

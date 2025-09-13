@@ -1,6 +1,12 @@
 # Browser Example
 
-This example demonstrates ProtoObject working directly in the browser without Node.js dependencies.
+This example demonst# Browser-compatible imports only
+import { 
+  ProtoObject, 
+  StaticImplements,
+  protoObjectFactory,
+  ProtoObjectBrowserStorage  // Universal browser storage utility
+} from 'protoobject/browser';rotoObject working directly in the browser without Node.js dependencies.
 
 ## Files
 
@@ -10,7 +16,7 @@ This example demonstrates ProtoObject working directly in the browser without No
 
 - ✅ Basic ProtoObject functionality (create, serialize, deserialize)
 - ✅ JSON serialization/deserialization
-- ✅ LocalStorage integration with ProtoObjectLocalStorage
+- ✅ LocalStorage integration with ProtoObjectBrowserStorage
 - ✅ Fetch API integration  
 - ✅ Performance testing
 - ✅ Environment detection
@@ -50,7 +56,7 @@ import {
 
 ✅ Core ProtoObject functionality
 ✅ JSON serialization/deserialization
-✅ localStorage/sessionStorage integration with ProtoObjectLocalStorage
+✅ localStorage/sessionStorage integration with ProtoObjectBrowserStorage
 ✅ Fetch API integration
 ✅ IndexedDB integration
 ✅ WebSocket integration

@@ -18,15 +18,11 @@ export type { ProtoObjectDynamicMethods } from "./types/dynamic-methods.js";
 export type { ProtoObjectStaticMethods } from "./types/static-methods.js";
 export type { RecordTransformer } from "./types/record-transformer.js";
 export type { CollectionTransformer } from "./types/collection-transformer.js";
+export type { StorageType, StorageOptions } from "./types/browser-storage.js";
 
 // Utilities (browser-compatible)
 export { protoObjectFactory } from "./utils/protoobject-factory.js";
-export { ProtoObjectLocalStorage } from "./utils/protoobject-localstorage.js";
-export {
-  ProtoObjectBrowserStorage,
-  type StorageType,
-  type StorageOptions,
-} from "./utils/protoobject-browser-storage.js";
+export { ProtoObjectBrowserStorage } from "./utils/protoobject-browser-storage.js";
 
 // Note: The following modules are Node.js-specific and not available in browser:
 // - ProtoObjectSQLite (requires node:sqlite and node:crypto)

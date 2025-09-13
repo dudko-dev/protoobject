@@ -3,10 +3,10 @@
   "compilerOptions": {
     "module": "ES2022",
     "moduleResolution": "node",
-    "outDir": "lib/types",
+    "outDir": "lib",
     "emitDeclarationOnly": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": false
   },
   "include": ["src"]
 }
