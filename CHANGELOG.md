@@ -1,3 +1,8 @@
+# 2.0.8 / 2025-10-01
+
+### :tada: Enhancements
+- Updated dependencies: @sergdudko/objectstream, typescript
+
 # 2.0.7 / 2025-09-30
 
 ### :tada: Enhancements
