@@ -5,7 +5,8 @@
     "moduleResolution": "node",
     "outDir": "lib/esm",
     "declaration": false,
-    "declarationMap": false
+    "declarationMap": false,
+    "sourceMap": false
   },
   "include": ["src"]
 }

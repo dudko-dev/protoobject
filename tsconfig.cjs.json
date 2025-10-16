@@ -4,7 +4,8 @@
     "module": "CommonJS",
     "outDir": "lib/cjs",
     "declaration": false,
-    "declarationMap": false
+    "declarationMap": false,
+    "sourceMap": false
   },
   "include": ["src"]
 }
