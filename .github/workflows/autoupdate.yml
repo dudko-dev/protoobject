@@ -35,30 +35,3 @@ jobs:
           debug: "true"
           ignore-packages: |
             @types/node
-  release:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    timeout-minutes: 15
-    env:
-      NODE_VERSION: 22
-      VERSION: ${{ needs.update.outputs.version }}
-    needs: [update]
-    if: ${{ needs.update.outputs.updated == 'true' }}
-    steps:
-      - name: Checkout repo
-        id: checkout_repo
-        uses: actions/checkout@v5
-        with:
-          ref: "main"
-      - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ needs.update.outputs.version }}
-          name: v${{ needs.update.outputs.version }}
-          body_path: ${{ github.workspace }}/README.md
-          repository: dudko-dev/protoobject
-          token: ${{ secrets.GITHUB_TOKEN }}
-          draft: false
-          prerelease: false
