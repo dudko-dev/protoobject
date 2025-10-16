@@ -86,6 +86,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           draft: false
           prerelease: false
-      - name: Publish package to NPM
-        id: npm_publish
-        run: npm publish
