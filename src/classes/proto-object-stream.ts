@@ -6,7 +6,8 @@
 
 /* eslint-disable no-unused-vars */
 import { Transform } from "node:stream";
-import { Stringifer, Parser } from "@sergdudko/objectstream";
+import pkg from "@sergdudko/objectstream";
+const { Stringifer, Parser } = pkg;
 
 /**
  * Utility class for streaming ProtoObject serialization using @sergdudko/objectstream

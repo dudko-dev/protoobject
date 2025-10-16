@@ -1,6 +1,6 @@
-import { ProtoObjectDynamicMethods } from "../types/dynamic-methods";
-import { ProtoObject } from "../classes/proto-object";
-import { ProtoObjectStaticMethods } from "../types/static-methods";
+import { ProtoObjectDynamicMethods } from "../types/dynamic-methods.js";
+import { ProtoObject } from "../classes/proto-object.js";
+import { ProtoObjectStaticMethods } from "../types/static-methods.js";
 
 /**
  * A factory for creating classes based on the ProtoObject class

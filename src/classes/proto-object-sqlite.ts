@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
-import { ProtoObject } from "./proto-object";
-import { ProtoObjectStaticMethods } from "../types/static-methods";
-import { StaticImplements } from "../decorators/static-implements";
+import { ProtoObject } from "./proto-object.js";
+import { ProtoObjectStaticMethods } from "../types/static-methods.js";
+import { StaticImplements } from "../decorators/static-implements.js";
 
 /* eslint-disable no-unused-vars, @typescript-eslint/no-shadow */
 export enum RecordState {

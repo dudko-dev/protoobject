@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { AnyObject } from "./any-object";
+import { AnyObject } from "./any-object.js";
 
 /**
  * Dynamic methods of the ProtoObject class and its heirs

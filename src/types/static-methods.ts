@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 /* eslint-disable no-unused-vars */
 
-import { AnyObject } from "./any-object";
-import { UnknownObject } from "./unknown-object";
-import { RecordTransformer } from "./record-transformer";
-import { ProtoObjectDynamicMethods } from "./dynamic-methods";
-import { CollectionTransformer } from "./collection-transformer";
-import { ValidatorFunction } from "./validator-function";
+import { AnyObject } from "./any-object.js";
+import { UnknownObject } from "./unknown-object.js";
+import { RecordTransformer } from "./record-transformer.js";
+import { ProtoObjectDynamicMethods } from "./dynamic-methods.js";
+import { CollectionTransformer } from "./collection-transformer.js";
+import { ValidatorFunction } from "./validator-function.js";
 
 /**
  * Static methods of the ProtoObject class and its heirs

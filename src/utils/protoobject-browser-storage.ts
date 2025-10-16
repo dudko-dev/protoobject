@@ -1,12 +1,12 @@
 /* eslint-env browser */
 /* global window, indexedDB, document */
-import { ProtoObject } from "../classes/proto-object";
-import { ProtoObjectStaticMethods } from "../types/static-methods";
-import { UnknownObject } from "../types/unknown-object";
-import type { StorageType, StorageOptions } from "../types/browser-storage";
+import { ProtoObject } from "../classes/proto-object.js";
+import { ProtoObjectStaticMethods } from "../types/static-methods.js";
+import { UnknownObject } from "../types/unknown-object.js";
+import type { StorageType, StorageOptions } from "../types/browser-storage.js";
 
 // Re-export types for convenience
-export type { StorageType, StorageOptions } from "../types/browser-storage";
+export type { StorageType, StorageOptions } from "../types/browser-storage.js";
 
 /**
  * Universal ProtoObject browser storage utility

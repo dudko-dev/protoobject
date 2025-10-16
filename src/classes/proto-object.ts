@@ -1,7 +1,7 @@
-import { UnknownObject } from "../types/unknown-object";
-import { ProtoObjectDynamicMethods } from "../types/dynamic-methods";
-import { ProtoObjectStaticMethods } from "../types/static-methods";
-import { ValidatorFunction } from "../types/validator-function";
+import { UnknownObject } from "../types/unknown-object.js";
+import { ProtoObjectDynamicMethods } from "../types/dynamic-methods.js";
+import { ProtoObjectStaticMethods } from "../types/static-methods.js";
+import { ValidatorFunction } from "../types/validator-function.js";
 
 /**
  * A universal class for creating any JSON objects and simple manipulations with them.

@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 
-import { ProtoObjectDynamicMethods } from "./dynamic-methods";
+import { ProtoObjectDynamicMethods } from "./dynamic-methods.js";
 
 /**
  * A data transformer for the ProtoObject class or its heir
