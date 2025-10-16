@@ -1,6 +1,6 @@
 {
   "name": "protoobject",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A universal class for creating any JSON objects and simple manipulations with them.",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
