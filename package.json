@@ -2,35 +2,39 @@
   "name": "protoobject",
   "version": "2.1.1",
   "description": "A universal class for creating any JSON objects and simple manipulations with them.",
-  "main": "./lib/cjs/index.js",
-  "module": "./lib/esm/index.js",
-  "types": "./lib/index.d.ts",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./lib/index.d.ts",
-        "default": "./lib/esm/index.js"
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
       },
       "require": {
-        "types": "./lib/index.d.ts",
-        "default": "./lib/cjs/index.js"
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.js"
       }
     },
     "./browser": {
       "import": {
-        "types": "./lib/browser.d.ts",
-        "default": "./lib/esm/browser.js"
+        "types": "./dist/types/browser.d.ts",
+        "default": "./dist/esm/browser.js"
       },
       "require": {
-        "types": "./lib/browser.d.ts",
-        "default": "./lib/cjs/browser.js"
+        "types": "./dist/types/browser.d.ts",
+        "default": "./dist/cjs/browser.js"
       }
     },
     "./package.json": "./package.json"
   },
-  "browser": "./lib/esm/browser.js",
+  "browser": "./dist/esm/browser.js",
   "files": [
-    "lib/**/*"
+    "dist/esm/**/*.js{,on}",
+    "dist/cjs/**/*.js{,on}",
+    "dist/types/**/*",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "npm run test:ts && npm run test:js && npm run test:sql && npm run test:sqlite && npm run test:stream && npm run test:crypto && npm run test:fs && npm run test:tcp && npm run test:browser-node && npm run test:transformers",
@@ -48,13 +52,12 @@
     "cov": "./node_modules/.bin/nyc npm run test:ts",
     "lint": "./node_modules/.bin/eslint src/**/*.ts",
     "prebuild": "npm run lint",
-    "build": "npm run build:clean && npm run build:cjs && npm run build:esm && npm run build:types && npm run build:package-json && npm run build:fix-esm",
-    "build:clean": "rm -rf lib",
+    "build": "npm run build:clean && npm run build:cjs && npm run build:esm && npm run build:types && npm run build:package-json",
+    "build:clean": "rm -rf dist",
     "build:cjs": "./node_modules/.bin/tsc -p tsconfig.cjs.json",
     "build:esm": "./node_modules/.bin/tsc -p tsconfig.esm.json",
     "build:types": "./node_modules/.bin/tsc -p tsconfig.types.json",
-    "build:package-json": "echo '{\"type\":\"commonjs\"}' > lib/cjs/package.json && echo '{\"type\":\"module\"}' > lib/esm/package.json",
-    "build:fix-esm": "node fix-esm-imports.js",
+    "build:package-json": "echo '{\"type\":\"commonjs\"}' > dist/cjs/package.json && echo '{\"type\":\"module\"}' > dist/esm/package.json",
     "example:stream-chat:server": "node --import=tsx examples/stream-chat/server.ts",
     "example:stream-chat:client": "node --import=tsx examples/stream-chat/client.ts",
     "update": "eval \"$(node -e 'const t = require(`./package.json`);const ignore = require(`./ignoreUpdatesModules.json`);console.log(`npm i ${(Object.keys(t.dependencies || {}).filter((e)=>ignore.base.indexOf(e) === -1).map((e)=>(`${e}@latest`)).join(` `))} --save&&npm i ${(Object.keys(t.devDependencies || {}).filter((e)=>ignore.dev.indexOf(e) === -1).map((e)=>(`${e}@latest`)).join(` `))} --save-dev`);')\""

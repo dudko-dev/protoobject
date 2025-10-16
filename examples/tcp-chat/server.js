@@ -2,7 +2,7 @@ import {
   ProtoObjectTCP,
   ProtoObjectTCPServer,
   MessageType,
-} from "../../lib/esm/index.js";
+} from "../../dist/esm/index.js";
 
 /**
  * Chat message from user

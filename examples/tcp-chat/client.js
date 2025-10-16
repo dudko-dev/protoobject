@@ -2,7 +2,7 @@ import {
   ProtoObjectTCP,
   ProtoObjectTCPClient,
   MessageType,
-} from "../../lib/esm/index.js";
+} from "../../dist/esm/index.js";
 import { createInterface } from "node:readline";
 
 /**
@@ -143,7 +143,9 @@ class ChatClient {
     process.stdout.write("\r\x1b[K");
 
     if (message.username === this.username) {
-      console.log(`\x1b[36m[${time}]${roomInfo} You: ${message.message}\x1b[0m`);
+      console.log(
+        `\x1b[36m[${time}]${roomInfo} You: ${message.message}\x1b[0m`
+      );
     } else {
       console.log(
         `\x1b[32m[${time}]${roomInfo} ${message.username}: ${message.message}\x1b[0m`
