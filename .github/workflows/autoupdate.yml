@@ -5,6 +5,9 @@ on:
 concurrency:
   group: "${{ github.workflow }} @ ${{ github.ref }}"
   cancel-in-progress: false
+permissions:
+  id-token: write
+  contents: read
 jobs:
   update:
     runs-on: ubuntu-latest
