@@ -121,6 +121,6 @@
     "test": "./test/"
   },
   "dependencies": {
-    "@sergdudko/objectstream": "^4.0.8"
+    "@sergdudko/objectstream": "^4.0.9"
   }
 }
