@@ -1,3 +1,8 @@
+# 2.1.15 / 2025-11-28
+
+### :tada: Enhancements
+- Updated dependencies: @sergdudko/objectstream, prettier
+
 # 2.1.14 / 2025-11-25
 
 ### :tada: Enhancements
