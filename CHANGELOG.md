@@ -1,3 +1,8 @@
+# 2.1.18 / 2025-12-01
+
+### :tada: Enhancements
+- Updated dependencies: @sergdudko/objectstream, tsx
+
 # 2.1.17 / 2025-11-30
 
 ### :tada: Enhancements
