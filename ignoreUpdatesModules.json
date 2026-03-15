@@ -1,4 +1,4 @@
 {
   "base": [],
-  "dev": ["@types/node", "@eslint/js", "eslint", "nyc"]
+  "dev": ["@types/node", "nyc"]
 }

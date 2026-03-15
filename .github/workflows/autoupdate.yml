@@ -40,8 +40,6 @@ jobs:
           debug: "true"
           ignore-packages: |
             @types/node
-            @eslint/js
-            eslint
             nyc
   deploy:
     runs-on: ubuntu-latest

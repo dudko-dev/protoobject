@@ -189,7 +189,7 @@ export class ProtoObjectFS<
           throw new Error(`Unsupported format: ${format}`);
       }
     } catch (error) {
-      throw new Error(`Failed to load from file ${filePath}: ${error}`);
+      throw new Error(`Failed to load from file ${filePath}: ${error}`, { cause: error });
     }
   }
 
@@ -220,7 +220,8 @@ export class ProtoObjectFS<
       return objects;
     } catch (error) {
       throw new Error(
-        `Failed to load from directory ${directoryPath}: ${error}`
+        `Failed to load from directory ${directoryPath}: ${error}`,
+        { cause: error }
       );
     }
   }
