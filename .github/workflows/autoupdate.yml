@@ -24,6 +24,10 @@ jobs:
         with:
           path: "tmp"
           ref: "main"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - name: Autoupdate
         id: autoupdate
         uses: siarheidudko/autoupdater@v6
