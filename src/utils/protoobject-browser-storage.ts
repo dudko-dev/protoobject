@@ -1,5 +1,4 @@
-/* eslint-env browser */
-/* global window, indexedDB, document */
+/* global window, indexedDB, document, Worker */
 import { ProtoObject } from "../classes/proto-object.js";
 import { ProtoObjectStaticMethods } from "../types/static-methods.js";
 import { UnknownObject } from "../types/unknown-object.js";
