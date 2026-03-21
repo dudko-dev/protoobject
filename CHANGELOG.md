@@ -1,3 +1,8 @@
+# 2.1.34 / 2026-03-21
+
+### :tada: Enhancements
+- Updated dependencies: @sergdudko/objectstream, eslint
+
 # 2.1.33 / 2026-03-17
 
 ### :tada: Enhancements
