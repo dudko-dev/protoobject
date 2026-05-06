@@ -1,7 +1,5 @@
 name: Autoupdate
 on:
-  schedule:
-    - cron: "0 1 * * *"
   workflow_dispatch:
   workflow_call:
 concurrency:
@@ -10,33 +8,53 @@ concurrency:
 permissions:
   contents: write
   actions: write
+  pull-requests: write
+env:
+  AUTOUPDATE_BRANCH: chore/autoupdate-${{ github.run_id }}
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     outputs:
-      updated: ${{ steps.autoupdate.outputs.updated }}
-      version: ${{ steps.autoupdate.outputs.version }}
+      updater_outcome: ${{ steps.autoupdate.outcome }}
+      updater_updated: ${{ steps.autoupdate.outputs.updated }}
+      claude_outcome: ${{ steps.claude_fix.outcome }}
+      verify_outcome: ${{ steps.verify.outcome }}
+      version: ${{ steps.pkg.outputs.version }}
+      branch: ${{ env.AUTOUPDATE_BRANCH }}
     steps:
       - name: Checkout repo
-        id: checkout_repo
         uses: actions/checkout@v5
         with:
-          path: "tmp"
-          ref: "main"
+          ref: main
+          token: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.email "slavianich@gmail.com"
+          git config user.name "Siarhei Dudko"
+
+      - name: Create autoupdate branch
+        run: |
+          git checkout -b "$AUTOUPDATE_BRANCH"
+          git push -u origin "$AUTOUPDATE_BRANCH"
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
+
       - name: Autoupdate
         id: autoupdate
+        continue-on-error: true
         uses: siarheidudko/autoupdater@v6
         with:
           author-email: "slavianich@gmail.com"
           author-name: "Siarhei Dudko"
-          working-directory: ${{ github.workspace }}/tmp
+          working-directory: ${{ github.workspace }}
           ref: ${{ github.repository }}
-          branch: "main"
+          branch: ${{ env.AUTOUPDATE_BRANCH }}
           builds-and-checks: |
             npm run lint
             npm run build
@@ -45,14 +63,103 @@ jobs:
           ignore-packages: |
             @types/node
             nyc
-  deploy:
-    runs-on: ubuntu-latest
-    needs: update
-    if: needs.update.outputs.updated == 'true'
-    steps:
-      - name: Trigger Build and Deploy Workflow
-        uses: benc-uk/workflow-dispatch@v1
+
+      - name: Sync branch state
+        if: always()
+        run: |
+          git fetch origin "$AUTOUPDATE_BRANCH" || true
+          git reset --hard "origin/$AUTOUPDATE_BRANCH" || true
+
+      - name: Claude autofix
+        id: claude_fix
+        if: steps.autoupdate.outcome == 'failure'
+        timeout-minutes: 15
+        continue-on-error: true
+        uses: anthropics/claude-code-base-action@beta
         with:
-          workflow: build-and-deploy.yml
-          ref: main
-          inputs: '{ "tag": "${{ needs.update.outputs.version }}" }'
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          model: claude-sonnet-4-6
+          allowed_tools: "Bash,Read,Edit,Write,Grep,Glob"
+          prompt: |
+            The automatic dependency updater failed in this repository.
+
+            Your task: bring the working tree to a state where all of the
+            following commands exit with code 0:
+              npm run lint
+              npm run build
+              npm run test:ts
+
+            Approach:
+            - Inspect package.json, package-lock.json and the failing logs.
+            - You may bump dependency versions (use `npx --yes npm-check-updates -u`
+              if helpful), reinstall (`npm install` or `npm ci`), and edit source
+              code only as needed for compatibility (typing, renamed exports,
+              breaking-change shims).
+            - Keep changes minimal and focused on dependency / compatibility fixes.
+              Do not refactor unrelated code.
+            - Do NOT commit or push. Just leave the working tree green.
+            - When `npm run lint && npm run build && npm run test:ts` all pass,
+              stop and report success.
+
+      - name: Verify checks after Claude fix
+        id: verify
+        if: steps.autoupdate.outcome == 'failure' && steps.claude_fix.outcome == 'success'
+        run: |
+          npm run lint
+          npm run build
+          npm run test:ts
+
+      - name: Commit and push Claude fix
+        if: steps.autoupdate.outcome == 'failure' && steps.verify.outcome == 'success'
+        run: |
+          if ! git diff --quiet HEAD || [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "chore(deps): claude autofix"
+            git push origin "$AUTOUPDATE_BRANCH"
+          fi
+
+      - name: Read package version
+        id: pkg
+        if: |
+          (steps.autoupdate.outcome == 'success' && steps.autoupdate.outputs.updated == 'true') ||
+          steps.verify.outcome == 'success'
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request
+        if: |
+          (steps.autoupdate.outcome == 'success' && steps.autoupdate.outputs.updated == 'true') ||
+          steps.verify.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+        run: |
+          BODY=$(cat <<EOF
+          Automated dependency update.
+
+          - autoupdater outcome: ${{ steps.autoupdate.outcome }}
+          - claude autofix outcome: ${{ steps.claude_fix.outcome || 'skipped' }}
+          - target version: v${{ steps.pkg.outputs.version }}
+
+          PR-checks must be green before merge.
+          EOF
+          )
+          gh pr create \
+            --base main \
+            --head "$AUTOUPDATE_BRANCH" \
+            --title "chore(deps): autoupdate v${{ steps.pkg.outputs.version }}" \
+            --body "$BODY" \
+            --label autoupdate || true
+
+      - name: Cleanup branch when nothing to ship
+        if: |
+          always() &&
+          !((steps.autoupdate.outcome == 'success' && steps.autoupdate.outputs.updated == 'true') ||
+            steps.verify.outcome == 'success')
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+        run: |
+          PR_NUMBER=$(gh pr list --head "$AUTOUPDATE_BRANCH" --state open --json number --jq '.[0].number' || true)
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr close "$PR_NUMBER" --delete-branch --comment "Autoupdate could not be brought to green state; closing." || true
+          else
+            git push origin --delete "$AUTOUPDATE_BRANCH" || true
+          fi
