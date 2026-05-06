@@ -60,13 +60,16 @@ jobs:
             @types/node
             nyc
 
-      - name: Sync branch state
-        if: always()
+      - name: Persist autoupdater work on failure
+        if: steps.autoupdate.outcome == 'failure'
         run: |
-          git fetch origin "$AUTOUPDATE_BRANCH" || true
-          git reset --hard "origin/$AUTOUPDATE_BRANCH" || true
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "chore(deps): autoupdater partial update"
+          fi
+          git push --force-with-lease origin "HEAD:$AUTOUPDATE_BRANCH" || true
 
-      - name: Fallback baseline update on failure with empty diff
+      - name: Fallback baseline update if branch still empty vs main
         if: steps.autoupdate.outcome == 'failure'
         run: |
           git fetch origin main
@@ -76,25 +79,34 @@ jobs:
             if [ -n "$(git status --porcelain)" ]; then
               git add -A
               git commit -m "chore(deps): npm-check-updates baseline (autoupdater fallback)"
-              git push origin "$AUTOUPDATE_BRANCH"
+              git push origin "HEAD:$AUTOUPDATE_BRANCH"
             fi
           fi
 
-      - name: Check for diff vs main
+      - name: Ensure labels exist
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+        run: |
+          gh label create autoupdate --color "0e8a16" --description "Automated dependency update PRs" --force || true
+          gh label create needs-claude --color "d4c5f9" --description "Needs Claude GitHub App to fix" --force || true
+
+      - name: Check for diff vs main on remote branch
         id: diff
         if: always()
         run: |
-          git fetch origin main
-          if git diff --quiet origin/main; then
+          git fetch origin main "$AUTOUPDATE_BRANCH"
+          if git diff --quiet "origin/main" "origin/$AUTOUPDATE_BRANCH"; then
             echo "has_diff=false" >> "$GITHUB_OUTPUT"
           else
             echo "has_diff=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Read package version
+      - name: Read package version from branch
         id: pkg
         if: steps.diff.outputs.has_diff == 'true'
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION=$(git show "origin/$AUTOUPDATE_BRANCH:package.json" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>console.log(JSON.parse(s).version))")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Open PR (autoupdater succeeded)
         if: |
