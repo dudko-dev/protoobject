@@ -37,7 +37,7 @@ jobs:
           git push -u origin "$AUTOUPDATE_BRANCH"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -133,7 +133,7 @@ jobs:
             --body "$BODY")
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
 
-      - name: Open draft PR (autoupdater failed → @claude)
+      - name: Open draft PR (autoupdater failed)
         id: pr_failure
         if: steps.autoupdate.outcome == 'failure' && steps.diff.outputs.has_diff == 'true'
         env:
@@ -141,19 +141,23 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           BODY=$(cat <<EOF
-          @claude автоапдейт зависимостей упал.
+          The dependency autoupdater failed during \`builds-and-checks\`.
 
-          Лог запуска: $RUN_URL
+          Run log: $RUN_URL
 
-          Задача: запушь в эту ветку правки так, чтобы прошли:
+          A Claude session is requested below to push fixes onto this branch
+          so the following commands all exit 0:
 
               npm run lint
               npm run build
               npm run test:ts
 
-          Меняй только то, что нужно для совместимости с обновлёнными зависимостями (типы, переименованные экспорты, breaking changes). Продуктовую логику не трогай.
+          Only adjust what's needed for compatibility with the updated
+          dependencies (types, renamed exports, breaking changes). Do not
+          modify product logic.
 
-          После коммитов снова запустится workflow "PR checks" — он подтвердит зелёное состояние.
+          The "PR checks" workflow will re-run on each new commit to confirm
+          a green state before merge.
           EOF
           )
           PR_URL=$(gh pr create \
@@ -163,6 +167,29 @@ jobs:
             --body "$BODY" \
             --draft)
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Mention @claude in a PR comment
+        if: steps.pr_failure.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+          PR_URL: ${{ steps.pr_failure.outputs.pr_url }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          COMMENT=$(cat <<EOF
+          @claude the dependency autoupdater failed on this branch
+          (run: $RUN_URL).
+
+          Please push commits to this branch until the following all pass:
+
+              npm run lint
+              npm run build
+              npm run test:ts
+
+          Limit changes to compatibility shims (types, renamed exports,
+          breaking-change adjustments). Do not change product logic.
+          EOF
+          )
+          gh pr comment "$PR_URL" --body "$COMMENT"
 
       - name: Add labels to PR
         if: steps.pr_success.outputs.pr_url != '' || steps.pr_failure.outputs.pr_url != ''
