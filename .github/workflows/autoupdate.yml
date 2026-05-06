@@ -179,14 +179,27 @@ jobs:
           @claude the dependency autoupdater failed on this branch
           (run: $RUN_URL).
 
-          Please push commits to this branch until the following all pass:
+          Push commits to this branch until ALL THREE of the following
+          exit with code 0 in your local working tree, observed via the
+          Bash tool — not inferred:
 
               npm run lint
               npm run build
               npm run test:ts
 
-          Limit changes to compatibility shims (types, renamed exports,
-          breaking-change adjustments). Do not change product logic.
+          Hard rules:
+          - Run those three commands yourself before every push. Do not
+            push if any of them is red.
+          - If \`npm install\` or \`npm ci\` is needed, run it first
+            with \`--no-audit --no-fund\` and confirm exit 0.
+          - Limit edits to compatibility shims (types, renamed exports,
+            breaking-change adjustments, eslint-config tweaks for new
+            rule defaults). Do NOT change product logic.
+          - Do NOT bump the package version.
+          - When all three are green, push and stop. CI's
+            \`PR checks\` workflow will re-verify on the PR.
+
+          See CLAUDE.md in the repo root for the full project conventions.
           EOF
           )
           gh pr comment "$PR_URL" --body "$COMMENT"
