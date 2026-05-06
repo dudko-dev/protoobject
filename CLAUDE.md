@@ -5,7 +5,7 @@ A universal class for creating any JSON objects and simple manipulations with th
 ## Stack
 
 - TypeScript (`tsc`), targeting CJS + ESM dual build with type declarations.
-- Node `>=16` runtime; CI tests on Node 20 and 22.
+- Node `>=16` runtime; CI tests on Node 20, 22 and 24.
 - ESLint + Prettier.
 - Test runner: `node --test` (no Jest/Mocha).
 
@@ -15,7 +15,7 @@ A universal class for creating any JSON objects and simple manipulations with th
 npm run lint          # ESLint over src/**/*.ts — must exit 0
 npm run build         # Clean + tsc CJS + tsc ESM + tsc types + write package.json shims
 npm run test:ts       # Primary test suite (TypeScript) used by autoupdate verification
-npm run cov           # Coverage run; used by PR checks on Node 20/22
+npm run cov           # Coverage run; used by PR checks on Node 20/22/24
 npm run test:sql      # SQL tests; only on Node >= 22
 npm test              # Full suite — runs lint, all unit suites, browser-node, transformers
 ```
@@ -47,3 +47,13 @@ If `npm install` is needed (e.g. lockfile changed), run it with `--no-audit --no
 - Goal: bring `npm run lint && npm run build && npm run test:ts` to green.
 - Push compatibility fixes onto this branch. Each push re-runs `pr-checks.yml` automatically; you don't need to mention checks back to the maintainer until they're green.
 - If a fix is impossible without changing product behavior, stop and leave a comment explaining what's blocked rather than guessing.
+
+## CI quirks specific to this repo
+
+This repo follows the unified `autoupdate-with-claude` baseline (same template across siblings). Several workarounds are intentional:
+- `autoupdate.yml` uses `GITHUB_TOKEN` (not `TOKEN_FOR_WORKFLOW`) for unification across repos and explicitly dispatches `pr-checks.yml` after PR creation, because events created via `GITHUB_TOKEN` don't trigger `pull_request` workflows.
+- `autoupdate.yml` dispatches `claude.yml` directly via `workflow_dispatch` (passing `branch` and `run_url` inputs) instead of relying on an `@claude` PR comment, since a comment posted via `GITHUB_TOKEN` would not fire `issue_comment` triggers.
+- Releases are wired via `release-on-version-bump.yml` (push to main → detect `package.json` version change → force-recreate `vX.Y.Z` tag on main HEAD → dispatch `build-and-deploy.yml`).
+- All actions pinned to the `@v4` line (`actions/checkout@v4`, `actions/setup-node@v4`, `actions/download-artifact@v4`) because the runner image currently lacks `externals/node24`, breaking post-cleanup of `@v5/@v6` actions.
+
+Do **not** "fix" any of the above by replacing dispatch calls with comment-based mentions, or by bumping action versions back to `@v5/@v6` — these are deliberate workarounds for current GitHub-side limitations.
