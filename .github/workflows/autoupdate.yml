@@ -1,5 +1,7 @@
 name: Autoupdate
 on:
+  schedule:
+    - cron: "0 6 * * 1"
   workflow_dispatch:
   workflow_call:
 concurrency:
@@ -9,19 +11,13 @@ permissions:
   contents: write
   actions: write
   pull-requests: write
+  issues: write
 env:
   AUTOUPDATE_BRANCH: chore/autoupdate-${{ github.run_id }}
 jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    outputs:
-      updater_outcome: ${{ steps.autoupdate.outcome }}
-      updater_updated: ${{ steps.autoupdate.outputs.updated }}
-      claude_outcome: ${{ steps.claude_fix.outcome }}
-      verify_outcome: ${{ steps.verify.outcome }}
-      version: ${{ steps.pkg.outputs.version }}
-      branch: ${{ env.AUTOUPDATE_BRANCH }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v5
@@ -70,73 +66,48 @@ jobs:
           git fetch origin "$AUTOUPDATE_BRANCH" || true
           git reset --hard "origin/$AUTOUPDATE_BRANCH" || true
 
-      - name: Claude autofix
-        id: claude_fix
+      - name: Fallback baseline update on failure with empty diff
         if: steps.autoupdate.outcome == 'failure'
-        timeout-minutes: 15
-        continue-on-error: true
-        uses: anthropics/claude-code-base-action@beta
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          model: claude-sonnet-4-6
-          allowed_tools: "Bash,Read,Edit,Write,Grep,Glob"
-          prompt: |
-            The automatic dependency updater failed in this repository.
-
-            Your task: bring the working tree to a state where all of the
-            following commands exit with code 0:
-              npm run lint
-              npm run build
-              npm run test:ts
-
-            Approach:
-            - Inspect package.json, package-lock.json and the failing logs.
-            - You may bump dependency versions (use `npx --yes npm-check-updates -u`
-              if helpful), reinstall (`npm install` or `npm ci`), and edit source
-              code only as needed for compatibility (typing, renamed exports,
-              breaking-change shims).
-            - Keep changes minimal and focused on dependency / compatibility fixes.
-              Do not refactor unrelated code.
-            - Do NOT commit or push. Just leave the working tree green.
-            - When `npm run lint && npm run build && npm run test:ts` all pass,
-              stop and report success.
-
-      - name: Verify checks after Claude fix
-        id: verify
-        if: steps.autoupdate.outcome == 'failure' && steps.claude_fix.outcome == 'success'
         run: |
-          npm run lint
-          npm run build
-          npm run test:ts
+          git fetch origin main
+          if git diff --quiet origin/main; then
+            npx --yes npm-check-updates -u || true
+            npm install --no-audit --no-fund || true
+            if [ -n "$(git status --porcelain)" ]; then
+              git add -A
+              git commit -m "chore(deps): npm-check-updates baseline (autoupdater fallback)"
+              git push origin "$AUTOUPDATE_BRANCH"
+            fi
+          fi
 
-      - name: Commit and push Claude fix
-        if: steps.autoupdate.outcome == 'failure' && steps.verify.outcome == 'success'
+      - name: Check for diff vs main
+        id: diff
+        if: always()
         run: |
-          if ! git diff --quiet HEAD || [ -n "$(git status --porcelain)" ]; then
-            git add -A
-            git commit -m "chore(deps): claude autofix"
-            git push origin "$AUTOUPDATE_BRANCH"
+          git fetch origin main
+          if git diff --quiet origin/main; then
+            echo "has_diff=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_diff=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Read package version
         id: pkg
-        if: |
-          (steps.autoupdate.outcome == 'success' && steps.autoupdate.outputs.updated == 'true') ||
-          steps.verify.outcome == 'success'
+        if: steps.diff.outputs.has_diff == 'true'
         run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
-      - name: Open pull request
+      - name: Open PR (autoupdater succeeded)
         if: |
-          (steps.autoupdate.outcome == 'success' && steps.autoupdate.outputs.updated == 'true') ||
-          steps.verify.outcome == 'success'
+          steps.autoupdate.outcome == 'success' &&
+          steps.autoupdate.outputs.updated == 'true' &&
+          steps.diff.outputs.has_diff == 'true'
         env:
           GH_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
         run: |
           BODY=$(cat <<EOF
           Automated dependency update.
 
-          - autoupdater outcome: ${{ steps.autoupdate.outcome }}
-          - claude autofix outcome: ${{ steps.claude_fix.outcome || 'skipped' }}
+          - autoupdater outcome: success
           - target version: v${{ steps.pkg.outputs.version }}
 
           PR-checks must be green before merge.
@@ -149,17 +120,38 @@ jobs:
             --body "$BODY" \
             --label autoupdate || true
 
-      - name: Cleanup branch when nothing to ship
-        if: |
-          always() &&
-          !((steps.autoupdate.outcome == 'success' && steps.autoupdate.outputs.updated == 'true') ||
-            steps.verify.outcome == 'success')
+      - name: Open draft PR (autoupdater failed → @claude)
+        if: steps.autoupdate.outcome == 'failure' && steps.diff.outputs.has_diff == 'true'
         env:
           GH_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          PR_NUMBER=$(gh pr list --head "$AUTOUPDATE_BRANCH" --state open --json number --jq '.[0].number' || true)
-          if [ -n "$PR_NUMBER" ]; then
-            gh pr close "$PR_NUMBER" --delete-branch --comment "Autoupdate could not be brought to green state; closing." || true
-          else
-            git push origin --delete "$AUTOUPDATE_BRANCH" || true
-          fi
+          BODY=$(cat <<EOF
+          @claude автоапдейт зависимостей упал.
+
+          Лог запуска: $RUN_URL
+
+          Задача: запушь в эту ветку правки так, чтобы прошли:
+
+              npm run lint
+              npm run build
+              npm run test:ts
+
+          Меняй только то, что нужно для совместимости с обновлёнными зависимостями (типы, переименованные экспорты, breaking changes). Продуктовую логику не трогай.
+
+          После коммитов снова запустится workflow "PR checks" — он подтвердит зелёное состояние.
+          EOF
+          )
+          gh pr create \
+            --base main \
+            --head "$AUTOUPDATE_BRANCH" \
+            --title "chore(deps): autoupdate (needs claude fix)" \
+            --body "$BODY" \
+            --draft \
+            --label autoupdate \
+            --label needs-claude || true
+
+      - name: Cleanup branch when nothing to ship
+        if: always() && steps.diff.outputs.has_diff != 'true'
+        run: |
+          git push origin --delete "$AUTOUPDATE_BRANCH" || true
