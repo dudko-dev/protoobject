@@ -85,7 +85,7 @@ jobs:
 
       - name: Ensure labels exist
         env:
-          GH_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh label create autoupdate --color "0e8a16" --description "Automated dependency update PRs" --force || true
           gh label create needs-claude --color "d4c5f9" --description "Needs Claude GitHub App to fix" --force || true
@@ -109,6 +109,7 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Open PR (autoupdater succeeded)
+        id: pr_success
         if: |
           steps.autoupdate.outcome == 'success' &&
           steps.autoupdate.outputs.updated == 'true' &&
@@ -125,14 +126,15 @@ jobs:
           PR-checks must be green before merge.
           EOF
           )
-          gh pr create \
+          PR_URL=$(gh pr create \
             --base main \
             --head "$AUTOUPDATE_BRANCH" \
             --title "chore(deps): autoupdate v${{ steps.pkg.outputs.version }}" \
-            --body "$BODY" \
-            --label autoupdate || true
+            --body "$BODY")
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
 
       - name: Open draft PR (autoupdater failed → @claude)
+        id: pr_failure
         if: steps.autoupdate.outcome == 'failure' && steps.diff.outputs.has_diff == 'true'
         env:
           GH_TOKEN: ${{ secrets.TOKEN_FOR_WORKFLOW }}
@@ -154,14 +156,25 @@ jobs:
           После коммитов снова запустится workflow "PR checks" — он подтвердит зелёное состояние.
           EOF
           )
-          gh pr create \
+          PR_URL=$(gh pr create \
             --base main \
             --head "$AUTOUPDATE_BRANCH" \
             --title "chore(deps): autoupdate (needs claude fix)" \
             --body "$BODY" \
-            --draft \
-            --label autoupdate \
-            --label needs-claude || true
+            --draft)
+          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Add labels to PR
+        if: steps.pr_success.outputs.pr_url != '' || steps.pr_failure.outputs.pr_url != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ steps.pr_success.outputs.pr_url || steps.pr_failure.outputs.pr_url }}
+        run: |
+          if [ "${{ steps.pr_failure.outputs.pr_url }}" != "" ]; then
+            gh pr edit "$PR_URL" --add-label autoupdate --add-label needs-claude || true
+          else
+            gh pr edit "$PR_URL" --add-label autoupdate || true
+          fi
 
       - name: Cleanup branch when nothing to ship
         if: always() && steps.diff.outputs.has_diff != 'true'
