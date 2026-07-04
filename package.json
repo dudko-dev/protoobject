@@ -1,6 +1,6 @@
 {
   "name": "protoobject",
-  "version": "2.1.43",
+  "version": "2.1.44",
   "description": "A universal class for creating any JSON objects and simple manipulations with them.",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -109,10 +109,10 @@
     "eslint": "^10.6.0",
     "globals": "^17.7.0",
     "nyc": "^17.1.0",
-    "prettier": "^3.8.5",
-    "tsx": "^4.22.4",
+    "prettier": "^3.9.4",
+    "tsx": "^4.23.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.62.0"
+    "typescript-eslint": "^8.62.1"
   },
   "engines": {
     "node": ">=16"
@@ -122,6 +122,6 @@
     "test": "./test/"
   },
   "dependencies": {
-    "@sergdudko/objectstream": "^4.0.41"
+    "@sergdudko/objectstream": "^4.0.42"
   }
 }
