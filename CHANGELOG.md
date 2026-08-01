@@ -1,3 +1,8 @@
+# 2.1.46 / 2026-08-01
+
+### :tada: Enhancements
+- Updated dependencies: @sergdudko/objectstream, globals, typescript
+
 # 2.1.44 / 2026-07-04
 
 ### :tada: Enhancements
