@@ -1,6 +1,6 @@
 {
   "name": "protoobject",
-  "version": "2.1.51",
+  "version": "2.1.52",
   "description": "A universal class for creating any JSON objects and simple manipulations with them.",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -112,7 +112,7 @@
     "prettier": "^3.9.6",
     "tsx": "^4.23.13",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.69.0"
+    "typescript-eslint": "^8.70.0"
   },
   "engines": {
     "node": ">=16"
