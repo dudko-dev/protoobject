@@ -1,3 +1,8 @@
+# 2.1.54 / 2026-09-26
+
+### :tada: Enhancements
+- Updated dependencies: @sergdudko/objectstream, prettier, tsx, typescript-eslint
+
 # 2.1.53 / 2026-09-19
 
 ### :tada: Enhancements
