@@ -1,3 +1,8 @@
+# 2.1.60 / 2026-11-07
+
+### :tada: Enhancements
+- Updated dependencies: @sergdudko/objectstream, globals
+
 # 2.1.59 / 2026-10-31
 
 ### :tada: Enhancements
