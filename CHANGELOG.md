@@ -1,3 +1,8 @@
+# 2.1.62 / 2026-11-21
+
+### :tada: Enhancements
+- Updated dependencies: @sergdudko/objectstream, typescript-eslint
+
 # 2.1.61 / 2026-11-14
 
 ### :tada: Enhancements
